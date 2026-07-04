@@ -576,19 +576,19 @@ export function EmptyHomePage() {
             }}
           />
 
-          {/* Layer 2: Asymmetrical Left/Right linear fade (Left fades slower at 22%, Right fades even slower at 82%) */}
+          {/* Layer 2: Asymmetrical Left/Right linear fade (Left fades slower at 15%, Right fades even slower at 85%) */}
           <div 
             className="absolute inset-0 pointer-events-none z-12"
             style={{
-              background: 'linear-gradient(90deg, #F7F8FC 0%, rgba(247, 248, 252, 0.8) 8%, transparent 22%, transparent 82%, rgba(247, 248, 252, 0.8) 92%, #F7F8FC 100%)'
+              background: 'linear-gradient(90deg, #F7F8FC 0%, rgba(247, 248, 252, 0.8) 6%, transparent 15%, transparent 85%, rgba(247, 248, 252, 0.8) 94%, #F7F8FC 100%)'
             }}
           />
 
-          {/* Layer 3: Asymmetrical Top/Bottom linear fade (Top fades least at 18%, Bottom fades stronger at 80%) */}
+          {/* Layer 3: Asymmetrical Top/Bottom linear fade (Top fades least at 8%, Bottom fades stronger at 85%) */}
           <div 
             className="absolute inset-0 pointer-events-none z-13"
             style={{
-              background: 'linear-gradient(180deg, #F7F8FC 0%, rgba(247, 248, 252, 0.8) 8%, transparent 18%, transparent 80%, rgba(247, 248, 252, 0.8) 92%, #F7F8FC 100%)'
+              background: 'linear-gradient(180deg, #F7F8FC 0%, rgba(247, 248, 252, 0.8) 4%, transparent 8%, transparent 85%, rgba(247, 248, 252, 0.8) 94%, #F7F8FC 100%)'
             }}
           />
 
@@ -608,11 +608,11 @@ export function EmptyHomePage() {
             }}
           />
 
-          {/* Layer 5: Top Bloom - Height thinned to 95px and faded faster to recover top environment atmosphere */}
+          {/* Layer 5: Top Bloom - Height thinned to 55px and faded faster to recover top environment atmosphere */}
           <div 
-            className="absolute left-0 right-0 top-0 h-[95px] pointer-events-none z-15"
+            className="absolute left-0 right-0 top-0 h-[55px] pointer-events-none z-15"
             style={{
-              background: 'linear-gradient(to bottom, #F7F8FC 0%, rgba(247, 244, 255, 0.3) 30%, transparent 100%)'
+              background: 'linear-gradient(to bottom, #F7F8FC 0%, rgba(247, 248, 252, 0.4) 20%, transparent 100%)'
             }}
           />
 
