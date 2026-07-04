@@ -404,32 +404,12 @@ export function EmptyHomePage() {
     )
   }
 
-  // Subpage wrapper to show which tab is currently active
+  // Subpage wrapper to show which tab is currently active (fully unified to eliminate layout thrashing)
   const renderMainContent = () => {
-    if (activeId === 'arena' && inRoom) {
-      return (
-        <ArenaLayout
-          sidebar={
-            <FloatingSidebar 
-              activeId={activeId} 
-              onChangeActiveId={setActiveId} 
-              inRoom={inRoom}
-            />
-          }
-          topNav={mockTopNav}
-          problemPanel={mockProblemPanel}
-          editorPanel={mockEditorPanel}
-          teamPanel={mockTeamPanel}
-          activityPanel={mockActivityPanel}
-          footer={mockFooter}
-        />
-      )
-    }
-
-    // Default screen wrapper for non-arena sidebar options to show full content
     return (
       <div className="flex h-screen bg-transparent text-slate-655 overflow-hidden relative">
-        <div className="w-[136px] flex-shrink-0 relative z-10">
+        {/* Left Sidebar Spacer: Unified and locked at 120px to keep dock position absolute-stable */}
+        <div className="w-[120px] flex-shrink-0 relative z-10">
           <FloatingSidebar 
             activeId={activeId} 
             onChangeActiveId={setActiveId} 
@@ -437,55 +417,105 @@ export function EmptyHomePage() {
           />
         </div>
         
-        <div className="flex-1 flex overflow-visible relative z-10 bg-transparent">
-          {/* Play Dashboard Container: permanently mounted to eliminate mounting jank and keep animations warm */}
+        {/* Right content viewport container */}
+        <div className="flex-1 flex overflow-visible relative z-10 bg-transparent min-w-0">
+          
+          {/* View 1: Main Dashboards (Play & Other Tabs) */}
           <div 
-            className="flex-1 flex flex-col transition-all duration-300 ease-in-out"
+            className="absolute inset-0 flex flex-col transition-all duration-300 ease-out"
             style={{
-              opacity: (activeId === 'play' && !inRoom) ? 1 : 0,
-              visibility: (activeId === 'play' && !inRoom) ? 'visible' : 'hidden',
-              pointerEvents: (activeId === 'play' && !inRoom) ? 'auto' : 'none',
-              transform: (activeId === 'play' && !inRoom) ? 'translateY(0)' : 'translateY(10px)',
-              position: (activeId === 'play' && !inRoom) ? 'relative' : 'absolute',
+              opacity: !inRoom ? 1 : 0,
+              visibility: !inRoom ? 'visible' : 'hidden',
+              pointerEvents: !inRoom ? 'auto' : 'none',
+              transform: !inRoom ? 'translateY(0)' : 'translateY(15px)',
+              position: !inRoom ? 'relative' : 'absolute',
               width: '100%',
-              height: '100%'
+              height: '100%',
+              zIndex: !inRoom ? 20 : 10
             }}
           >
-            {renderPlayDashboard()}
+            {/* Top Bar - Spans full width at the top */}
+            <HomeTopBar />
+            
+            {/* Dashboard Content Client Viewport */}
+            <div className="flex-grow min-h-0 relative w-full h-full">
+              {/* Play Dashboard Container */}
+              <div 
+                className="transition-all duration-300 ease-out"
+                style={{
+                  opacity: (activeId === 'play') ? 1 : 0,
+                  visibility: (activeId === 'play') ? 'visible' : 'hidden',
+                  pointerEvents: (activeId === 'play') ? 'auto' : 'none',
+                  transform: (activeId === 'play') ? 'scale(1)' : 'scale(0.985)',
+                  position: (activeId === 'play') ? 'relative' : 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  inset: 0
+                }}
+              >
+                {renderPlayDashboard()}
+              </div>
+
+              {/* Other Dashboards Container */}
+              {activeId !== 'play' && (
+                <div className="flex-1 flex flex-col justify-center items-center p-8 select-none bg-transparent h-full">
+                  <motion.div 
+                    key={activeId}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                    className={cn(
+                      "text-center p-10 max-w-md rounded-3xl shadow-2xl relative",
+                      isBright ? "glass-card border-purple-200/30 text-slate-600" : "bg-[#070b13]/55 border border-slate-900/60 text-slate-200"
+                    )}
+                  >
+                    {!isBright && <div className="absolute -inset-1 rounded-3xl bg-blue-500/5 blur-xl pointer-events-none" />}
+                    
+                    <h1 className={cn("text-xl font-bold tracking-wide uppercase mb-3", isBright ? "text-[#1E1B4B]" : "text-slate-100")}>
+                      {activeId.charAt(0).toUpperCase() + activeId.slice(1)} Dashboard
+                    </h1>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      You are currently viewing the {activeId} area. This interface simulates integration with our premium navigation routing context.
+                    </p>
+                  </motion.div>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Placeholder Dashboard for other tabs: mounted dynamically when not on play dashboard */}
-          {activeId !== 'play' && !inRoom && (
-            <div className="flex-1 flex flex-col justify-center items-center p-8 select-none bg-transparent">
-              <motion.div 
-                key={activeId}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-                className={cn(
-                  "text-center p-10 max-w-md rounded-3xl shadow-2xl relative",
-                  isBright ? "glass-card border-purple-200/30 text-slate-600" : "bg-[#070b13]/55 border border-slate-900/60 text-slate-200"
-                )}
-              >
-                {!isBright && <div className="absolute -inset-1 rounded-3xl bg-blue-500/5 blur-xl pointer-events-none" />}
-                
-                <h1 className={cn("text-xl font-bold tracking-wide uppercase mb-3", isBright ? "text-[#1E1B4B]" : "text-slate-100")}>
-                  {activeId.charAt(0).toUpperCase() + activeId.slice(1)} Dashboard
-                </h1>
-                <p className="text-xs text-slate-400 leading-relaxed mb-6">
-                  You are currently viewing the {activeId} area. This interface simulates integration with our premium navigation routing context.
-                </p>
-                {inRoom && (
-                  <button 
-                    onClick={() => setActiveId('arena')}
-                    className="px-4 py-1.5 rounded-lg bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 font-semibold text-xs border border-blue-500/20 transition-all cursor-pointer"
-                  >
-                    Return to Arena
-                  </button>
-                )}
-              </motion.div>
+          {/* View 2: Arena Layout - Dynamically mounted in the same DOM tree, transition via CSS */}
+          <div 
+            className="absolute inset-0 flex flex-col transition-all duration-300 ease-out"
+            style={{
+              opacity: inRoom ? 1 : 0,
+              visibility: inRoom ? 'visible' : 'hidden',
+              pointerEvents: inRoom ? 'auto' : 'none',
+              transform: inRoom ? 'translateY(0)' : 'translateY(-15px)',
+              position: inRoom ? 'relative' : 'absolute',
+              width: '100%',
+              height: '100%',
+              zIndex: inRoom ? 20 : 10
+            }}
+          >
+            {mockTopNav}
+            <div className="flex flex-1 overflow-hidden min-h-0">
+              <div className="w-[16px] flex-shrink-0" />
+              <main className="flex flex-1 overflow-hidden min-h-0">
+                <section className="ambient-material flex w-[360px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-bg">
+                  {mockProblemPanel}
+                </section>
+                <section className="ambient-material flex flex-1 flex-col overflow-hidden bg-bg">
+                  {mockEditorPanel}
+                </section>
+                <aside className="ambient-material flex w-[360px] flex-shrink-0 flex-col overflow-hidden border-l border-border bg-bg">
+                  {mockTeamPanel}
+                  {mockActivityPanel}
+                </aside>
+              </main>
             </div>
-          )}
+            {mockFooter}
+          </div>
+
         </div>
       </div>
     )
