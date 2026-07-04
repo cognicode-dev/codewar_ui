@@ -3,7 +3,7 @@ import { LobbyMemberCard } from './LobbyMemberCard'
 import { LiveFeed, LiveFeedItem } from './LiveFeed'
 import { ChatFeed, ChatMessage } from './ChatFeed'
 import { cn } from '@/utils'
-import { Users, Activity, MessageSquare } from 'lucide-react'
+import { Users, Activity, MessageSquare, ChevronDown, ChevronRight } from 'lucide-react'
 
 interface LobbySidebarProps {
   activeCount?: number
@@ -44,6 +44,7 @@ export function LobbySidebar({
 }: LobbySidebarProps) {
   const [activeTab, setActiveTab] = useState<'feed' | 'chat'>('feed')
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(defaultMessages)
+  const [isLobbyExpanded, setIsLobbyExpanded] = useState(true)
 
   const handleSendMessage = (text: string) => {
     const newMsg: ChatMessage = {
@@ -63,71 +64,68 @@ export function LobbySidebar({
         ? "bg-white/94 backdrop-blur-md border-l border-slate-200/50" 
         : "bg-[#080c12]/75 backdrop-blur-md border-l border-slate-900/50"
     )}>
-      {/* 1. Header & Member Count */}
-      <div className={cn(
-        "p-4 border-b flex items-center justify-between font-sans shrink-0",
-        isBright ? "border-slate-200/80 text-slate-700" : "border-slate-900 text-slate-350"
-      )}>
-        <span className="text-[10px] font-bold uppercase tracking-[0.18em] flex items-center gap-1.5">
-          <Users size={12} className="text-violet-500/80" />
-          Lobby Members
+      {/* 1. Collapsible Lobby Header (👥 Lobby (3/4)) */}
+      <button 
+        onClick={() => setIsLobbyExpanded(!isLobbyExpanded)}
+        className={cn(
+          "w-full flex items-center justify-between p-3.5 border-b font-sans shrink-0 hover:bg-slate-500/5 select-none cursor-pointer outline-none transition-colors duration-200",
+          isBright ? "border-slate-200/80 text-slate-705" : "border-slate-900 text-slate-350"
+        )}
+      >
+        <span className="text-[10px] font-extrabold uppercase tracking-[0.15em] flex items-center gap-1.5">
+          {isLobbyExpanded ? <ChevronDown size={11} className="text-violet-500" /> : <ChevronRight size={11} className="text-slate-500" />}
+          👥 Lobby ({activeCount}/{maxCount})
         </span>
-        <span className={cn(
-          "text-[9px] font-bold font-mono px-2 py-0.5 rounded-full border",
-          isBright 
-            ? "text-emerald-700 bg-emerald-50 border-emerald-200/50" 
-            : "text-emerald-400 bg-emerald-500/5 border-emerald-500/10"
-        )}>
-          {activeCount} / {maxCount}
-        </span>
-      </div>
+      </button>
 
-      {/* 2. Banner Member List */}
-      <div className={cn(
-        "p-4 border-b flex flex-col gap-2.5 overflow-y-auto no-scrollbar shrink-0 max-h-[295px]",
-        isBright ? "border-slate-200/80" : "border-slate-900"
-      )}>
-        {defaultMembers.map((member) => (
-          <LobbyMemberCard 
-            key={member.name} 
-            name={member.name}
-            status={member.status}
-            isBright={isBright}
-          />
-        ))}
-      </div>
+      {/* 2. Banner Member List (Visible only when expanded) */}
+      {isLobbyExpanded && (
+        <div className={cn(
+          "p-3.5 border-b flex flex-col gap-2 overflow-y-auto no-scrollbar shrink-0 max-h-[295px] transition-all duration-300",
+          isBright ? "border-slate-200/80" : "border-slate-900"
+        )}>
+          {defaultMembers.map((member) => (
+            <LobbyMemberCard 
+              key={member.name} 
+              name={member.name}
+              status={member.status}
+              isBright={isBright}
+            />
+          ))}
+        </div>
+      )}
 
       {/* 3. Segmented Tab Controls (Live | Chat) */}
       <div className={cn(
-        "px-4 py-2.5 border-b shrink-0 flex justify-center",
+        "px-4 py-2 border-b shrink-0 flex justify-center",
         isBright ? "border-slate-200/80" : "border-slate-900"
       )}>
         <div className={cn(
-          "w-full flex p-1 rounded-xl transition-colors duration-300 select-none",
+          "w-full flex p-0.5 rounded-xl transition-colors duration-300 select-none",
           isBright ? "bg-slate-100/90" : "bg-slate-950/60"
         )}>
           <button 
             onClick={() => setActiveTab('feed')}
             className={cn(
-              "flex-grow flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-[10.5px] font-bold uppercase tracking-wide cursor-pointer transition-all duration-200",
+              "flex-grow flex items-center justify-center gap-1.5 py-1 px-3 rounded-lg text-[10px] font-bold uppercase tracking-wide cursor-pointer transition-all duration-200",
               activeTab === 'feed'
                 ? (isBright ? "bg-white text-purple-700 shadow-sm border-b border-purple-500" : "bg-slate-800 text-purple-400 shadow-sm border-b border-purple-500")
-                : (isBright ? "text-slate-500 hover:text-slate-800" : "text-slate-400 hover:text-slate-200")
+                : (isBright ? "text-slate-500 hover:text-slate-800" : "text-slate-400 hover:text-slate-205")
             )}
           >
-            <Activity size={11} />
+            <Activity size={10} />
             Live
           </button>
           <button 
             onClick={() => setActiveTab('chat')}
             className={cn(
-              "flex-grow flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-[10.5px] font-bold uppercase tracking-wide cursor-pointer transition-all duration-200",
+              "flex-grow flex items-center justify-center gap-1.5 py-1 px-3 rounded-lg text-[10px] font-bold uppercase tracking-wide cursor-pointer transition-all duration-200",
               activeTab === 'chat'
                 ? (isBright ? "bg-white text-purple-700 shadow-sm border-b border-purple-500" : "bg-slate-800 text-purple-400 shadow-sm border-b border-purple-500")
-                : (isBright ? "text-slate-500 hover:text-slate-800" : "text-slate-400 hover:text-slate-200")
+                : (isBright ? "text-slate-500 hover:text-slate-800" : "text-slate-400 hover:text-slate-205")
             )}
           >
-            <MessageSquare size={11} />
+            <MessageSquare size={10} />
             Chat
           </button>
         </div>
