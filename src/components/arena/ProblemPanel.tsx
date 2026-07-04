@@ -40,11 +40,16 @@ export function ProblemPanel({
   isBright = false,
 }: ProblemPanelProps) {
   return (
-    <div className="flex flex-col h-full overflow-hidden select-none bg-transparent">
+    <div className={cn(
+      "flex flex-col h-full overflow-hidden select-none transition-colors duration-300",
+      isBright 
+        ? "bg-white/94 backdrop-blur-md border-r border-slate-200/50" 
+        : "bg-[#080c12]/75 backdrop-blur-md border-r border-slate-900/50"
+    )}>
       {/* Scrollable Content Region */}
       <div className={cn(
         "flex-1 p-6 overflow-y-auto no-scrollbar space-y-6 min-h-0",
-        isBright ? "text-slate-700" : "text-slate-300"
+        isBright ? "text-slate-800" : "text-slate-300"
       )}>
         {/* Title and Badges */}
         <ProblemHeader 
@@ -58,13 +63,13 @@ export function ProblemPanel({
         {/* Technical Metadata Row */}
         <div className={cn(
           "flex flex-wrap items-center gap-x-3 gap-y-1 text-xs border-b pb-4",
-          isBright ? "text-slate-500 border-slate-200/80" : "text-slate-400/90 border-slate-900/60"
+          isBright ? "text-slate-600 border-slate-200/80" : "text-slate-400/90 border-slate-900/60"
         )}>
-          <div>Est. Time: <span className="text-purple-600 font-semibold">{estTime}</span></div>
-          <div className={isBright ? "text-slate-300" : "text-slate-700"}>•</div>
-          <div>Memory Limit: <span className={cn("font-medium", isBright ? "text-slate-700" : "text-slate-355")}>{memory}</span></div>
-          <div className={isBright ? "text-slate-300" : "text-slate-700"}>•</div>
-          <div>Time Limit: <span className={cn("font-medium", isBright ? "text-slate-700" : "text-slate-355")}>{timeLimit}</span></div>
+          <div>Est. Time: <span className="text-purple-700 font-semibold">{estTime}</span></div>
+          <div className={isBright ? "text-slate-450" : "text-slate-700"}>•</div>
+          <div>Memory Limit: <span className={cn("font-semibold", isBright ? "text-slate-900" : "text-slate-200")}>{memory}</span></div>
+          <div className={isBright ? "text-slate-450" : "text-slate-700"}>•</div>
+          <div>Time Limit: <span className={cn("font-semibold", isBright ? "text-slate-900" : "text-slate-200")}>{timeLimit}</span></div>
         </div>
 
         {/* Statement paragraphs */}
@@ -72,7 +77,7 @@ export function ProblemPanel({
           {statementHtml.map((para, i) => (
             <p 
               key={i} 
-              className={isBright ? "text-slate-600" : "text-slate-300"}
+              className={isBright ? "text-slate-800 font-medium" : "text-slate-300"}
               dangerouslySetInnerHTML={{ __html: para }}
             />
           ))}

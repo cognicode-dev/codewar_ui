@@ -31,7 +31,7 @@ export function ArenaLayout({
   )
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden select-none bg-transparent font-sans">
+    <div className="flex h-screen w-full flex-col overflow-hidden select-none bg-transparent font-sans">
       {/* 1. Full-Width Top Navigation */}
       <div className="flex-shrink-0 w-full">
         {topNav}

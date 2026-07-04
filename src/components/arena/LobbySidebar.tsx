@@ -19,7 +19,12 @@ export function LobbySidebar({
   isBright = false,
 }: LobbySidebarProps) {
   return (
-    <div className="flex flex-col h-full overflow-hidden select-none bg-transparent">
+    <div className={cn(
+      "flex flex-col h-full overflow-hidden select-none transition-colors duration-300",
+      isBright 
+        ? "bg-white/94 backdrop-blur-md border-l border-slate-200/50" 
+        : "bg-[#080c12]/75 backdrop-blur-md border-l border-slate-900/50"
+    )}>
       {/* Lobby Members Card Section */}
       <div className={cn(
         "flex flex-col border-b p-6 flex-1 min-h-0 transition-colors duration-300",

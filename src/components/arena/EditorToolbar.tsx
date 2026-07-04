@@ -31,7 +31,7 @@ export function EditorToolbar({
     <div className={cn(
       "flex h-11 items-center justify-between border-b px-4 text-xs font-sans select-none shrink-0 transition-colors duration-300",
       isBright 
-        ? "border-slate-200/80 bg-[#ffffff]/60 text-slate-700" 
+        ? "border-slate-200/80 bg-white/94 text-slate-700" 
         : "border-slate-900 bg-[#06080d]/80 text-slate-350"
     )}>
       {/* Left side: Filename indicator */}

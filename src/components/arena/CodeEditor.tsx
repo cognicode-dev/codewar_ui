@@ -21,7 +21,7 @@ export function CodeEditor({
   return (
     <div className={cn(
       "flex-1 flex overflow-hidden relative font-mono text-[13px] leading-relaxed transition-colors duration-300",
-      isBright ? "bg-[#ffffff]/35 text-slate-800" : "bg-[#080c12]/90 text-slate-400"
+      isBright ? "bg-white/94 text-slate-800" : "bg-[#080c12]/90 text-slate-400"
     )}>
       {/* Line Numbers Column */}
       <div className={cn(

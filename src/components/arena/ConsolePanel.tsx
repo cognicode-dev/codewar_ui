@@ -60,7 +60,7 @@ export function ConsolePanel({
       className={cn(
         "flex flex-col border-t select-none transition-colors duration-300 w-full relative z-25",
         isBright 
-          ? "border-slate-200/80 bg-[#ffffff]/70 backdrop-blur-md" 
+          ? "border-slate-200/80 bg-white/94 backdrop-blur-md" 
           : "border-slate-900 bg-[#05070c]/90 backdrop-blur-md"
       )}
       style={{

@@ -37,7 +37,7 @@ export function ArenaTopbar({
     <header className={cn(
       "flex h-12 w-full items-center justify-between border-b px-6 text-xs font-medium select-none z-20 relative transition-all duration-300",
       isBright 
-        ? "border-slate-200/80 bg-[#ffffff]/60 backdrop-blur-md text-slate-600" 
+        ? "border-slate-200/80 bg-[#ffffff]/94 backdrop-blur-md text-slate-600" 
         : "border-slate-900 bg-[#05070c]/90 text-slate-400"
     )}>
       {/* Left side: Branding & Navigation Tabs */}
