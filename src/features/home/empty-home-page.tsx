@@ -576,19 +576,19 @@ export function EmptyHomePage() {
             }}
           />
 
-          {/* Layer 2: Asymmetrical Left/Right linear fade (Left fades slower at 15%, Right fades even slower at 85%) */}
+          {/* Layer 2: Asymmetrical Left/Right linear fade (Left transparent at 16%, Right starts fading at 88% to match reference) */}
           <div 
             className="absolute inset-0 pointer-events-none z-12"
             style={{
-              background: 'linear-gradient(90deg, #F7F8FC 0%, rgba(247, 248, 252, 0.8) 6%, transparent 15%, transparent 85%, rgba(247, 248, 252, 0.8) 94%, #F7F8FC 100%)'
+              background: 'linear-gradient(90deg, #F7F8FC 0%, rgba(247, 248, 252, 0.8) 5%, transparent 16%, transparent 88%, rgba(247, 248, 252, 0.8) 96%, #F7F8FC 100%)'
             }}
           />
 
-          {/* Layer 3: Asymmetrical Top/Bottom linear fade (Top fades least at 8%, Bottom fades stronger at 85%) */}
+          {/* Layer 3: Asymmetrical Top/Bottom linear fade (Top is soft 22% at 0%, transparent at 6%; Bottom starts fading at 78%) */}
           <div 
             className="absolute inset-0 pointer-events-none z-13"
             style={{
-              background: 'linear-gradient(180deg, #F7F8FC 0%, rgba(247, 248, 252, 0.8) 4%, transparent 8%, transparent 85%, rgba(247, 248, 252, 0.8) 94%, #F7F8FC 100%)'
+              background: 'linear-gradient(180deg, rgba(247, 248, 252, 0.22) 0%, transparent 6%, transparent 78%, rgba(247, 248, 252, 0.8) 90%, #F7F8FC 100%)'
             }}
           />
 
@@ -605,14 +605,6 @@ export function EmptyHomePage() {
             className="absolute inset-0 pointer-events-none z-14"
             style={{
               background: 'radial-gradient(ellipse at center, rgba(175, 120, 255, 0.25) 0%, transparent 70%)'
-            }}
-          />
-
-          {/* Layer 5: Top Bloom - Height thinned to 55px and faded faster to recover top environment atmosphere */}
-          <div 
-            className="absolute left-0 right-0 top-0 h-[55px] pointer-events-none z-15"
-            style={{
-              background: 'linear-gradient(to bottom, #F7F8FC 0%, rgba(247, 248, 252, 0.4) 20%, transparent 100%)'
             }}
           />
 

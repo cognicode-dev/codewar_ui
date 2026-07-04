@@ -9,10 +9,10 @@ export function HomeHero() {
       className="space-y-3 text-left font-sans select-none"
     >
       <span 
-        className="block font-normal tracking-tight"
+        className="block font-semibold tracking-tight"
         style={{
           fontSize: '36px',
-          color: '#8487C7',
+          color: '#4F46E5', // Rich indigo for attention and high legibility
           lineHeight: '1.1'
         }}
       >
@@ -29,10 +29,10 @@ export function HomeHero() {
         dev.exe
       </h1>
       <p 
-        className="font-normal"
+        className="font-medium"
         style={{
           fontSize: '18px',
-          color: '#6B7280',
+          color: '#4B5563', // Slate-600 dark gray for premium subtitle contrast
           lineHeight: '1.5',
           maxWidth: '320px',
           paddingTop: '2px'

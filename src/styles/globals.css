@@ -513,6 +513,6 @@
 }
 
 .hero-elliptical-mask-v3 {
-  mask-image: radial-gradient(ellipse at center, black 50%, rgba(0, 0, 0, 0.8) 72%, transparent 90%) !important;
-  -webkit-mask-image: radial-gradient(ellipse at center, black 50%, rgba(0, 0, 0, 0.8) 72%, transparent 90%) !important;
+  mask-image: radial-gradient(ellipse at 48% 46%, black 50%, rgba(0, 0, 0, 0.8) 72%, transparent 90%) !important;
+  -webkit-mask-image: radial-gradient(ellipse at 48% 46%, black 50%, rgba(0, 0, 0, 0.8) 72%, transparent 90%) !important;
 }
