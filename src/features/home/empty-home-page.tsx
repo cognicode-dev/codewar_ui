@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import { ArenaLayout, FloatingSidebar } from '@/components/layout'
+import { FloatingSidebar } from '@/components/layout'
 import { cn } from '@/utils'
-import { 
-  Trophy, 
-  Users, 
-  Zap, 
-  BookOpen, 
-  CheckCircle2, 
-  Cpu
-} from 'lucide-react'
+import { CheckCircle2, BookOpen } from 'lucide-react'
+
+// Import modular Arena UI components
+import { ArenaLayout } from '@/components/arena/ArenaLayout'
+import { ArenaTopbar } from '@/components/arena/ArenaTopbar'
+import { ProblemPanel } from '@/components/arena/ProblemPanel'
+import { EditorToolbar } from '@/components/arena/EditorToolbar'
+import { CodeEditor } from '@/components/arena/CodeEditor'
+import { LobbySidebar } from '@/components/arena/LobbySidebar'
+import { ConsolePanel } from '@/components/arena/ConsolePanel'
 
 // Import modular bright theme components
 import { HomeTopBar } from './HomeTopBar'
@@ -54,278 +56,34 @@ function AnimatedBackground() {
   )
 }
 
+const dummyCode = `export function findDuplicate(nums: number[]): number {
+  // Floyd's Tortoise and Hare (Cycle Detection)
+  let tortoise = nums[0];
+  let hare = nums[0];
+  
+  do {
+    tortoise = nums[tortoise];
+    hare = nums[nums[hare]];
+  } while (tortoise !== hare);
+  
+  // Find index where duplicate cycle starts...
+  tortoise = nums[0];
+  while (tortoise !== hare) {
+    tortoise = nums[tortoise];
+    hare = nums[hare];
+  }
+  
+  return hare;
+}`
+
 export function EmptyHomePage() {
   const [activeId, setActiveId] = useState('play')
   const [inRoom, setInRoom] = useState(false) // Starts outside room in the new Home Dashboard direction
+  const [language, setLanguage] = useState('TypeScript')
+  const [theme, setTheme] = useState('Glass Dark')
+  const [codeValue, setCodeValue] = useState(dummyCode)
 
   const isBright = activeId === 'play' || inRoom
-
-  // Mock subcomponents to populate the layout with premium visuals
-  const mockTopNav = (
-    <div className={cn(
-      "flex h-12 items-center justify-between border-b px-6 text-xs font-medium select-none z-20 relative transition-all duration-300",
-      isBright ? "border-slate-200/80 bg-[#ffffff]/60 backdrop-blur-md text-slate-600" : "border-slate-900 bg-[#05070c]/90 text-slate-400"
-    )}>
-      <div className="flex items-center gap-6">
-        <div className={cn("flex items-center gap-2", isBright ? "text-[#1E1B4B]" : "text-slate-200")}>
-          <span className={cn("font-bold font-mono text-sm", isBright ? "text-[#7C3AED]" : "text-blue-400")}>&gt;_</span>
-          <span className="font-bold uppercase tracking-wider text-[10px]">CodeWar</span>
-        </div>
-        <div className={cn("h-4 w-px", isBright ? "bg-slate-200" : "bg-slate-900")} />
-        <div className="flex items-center gap-4">
-          {inRoom ? (
-            <span 
-              onClick={() => setActiveId('arena')} 
-              className={cn(
-                "cursor-pointer transition-colors px-2.5 py-1 rounded border", 
-                activeId === 'arena' 
-                  ? (isBright ? "text-slate-800 font-semibold bg-white border-slate-200 shadow-sm" : "text-slate-100 font-semibold bg-slate-955 border-slate-900") 
-                  : (isBright ? "text-slate-500 hover:text-slate-800" : "text-slate-400 hover:text-slate-200")
-              )}
-            >
-              Arena
-            </span>
-          ) : (
-            <span 
-              onClick={() => setActiveId('play')} 
-              className={cn(
-                "cursor-pointer transition-colors px-2.5 py-1 rounded border", 
-                activeId === 'play' 
-                  ? (isBright ? "text-slate-800 font-semibold bg-white border-slate-200 shadow-sm" : "text-slate-100 font-semibold bg-slate-955 border-slate-900") 
-                  : (isBright ? "text-slate-500 hover:text-slate-800" : "text-slate-400 hover:text-slate-200")
-              )}
-            >
-              Play
-            </span>
-          )}
-          <span 
-            onClick={() => setActiveId('ranked')} 
-            className={cn(
-              "cursor-pointer transition-colors px-2.5 py-1 rounded border", 
-              activeId === 'ranked' 
-                ? (isBright ? "text-slate-800 font-semibold bg-white border-slate-200 shadow-sm" : "text-slate-100 font-semibold bg-slate-955 border-slate-900") 
-                : (isBright ? "text-slate-500 hover:text-slate-800" : "text-slate-400 hover:text-slate-200")
-            )}
-          >
-            Ranked
-          </span>
-          <span 
-            onClick={() => setActiveId('practice')} 
-            className={cn(
-              "cursor-pointer transition-colors px-2.5 py-1 rounded border", 
-              activeId === 'practice' 
-                ? (isBright ? "text-slate-800 font-semibold bg-white border-slate-200 shadow-sm" : "text-slate-100 font-semibold bg-slate-955 border-slate-900") 
-                : (isBright ? "text-slate-500 hover:text-slate-800" : "text-slate-400 hover:text-slate-200")
-            )}
-          >
-            Practice
-          </span>
-        </div>
-      </div>
-      
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className={cn("text-[10px]", isBright ? "text-slate-500" : "text-slate-550")}>SERVER: OPTIMAL</span>
-        </div>
-        <div className={cn("h-4 w-px", isBright ? "bg-slate-200" : "bg-slate-900")} />
-        <div className={cn("flex items-center gap-1.5", isBright ? "text-amber-600" : "text-amber-500/80")}>
-          <Zap size={12} className={cn("fill-amber-500/10", isBright ? "text-amber-600" : "text-amber-500/80")} />
-          <span className="font-bold">1,820 LP</span>
-        </div>
-        <div className={cn("h-4 w-px", isBright ? "bg-slate-200" : "bg-slate-900")} />
-        <div className="flex items-center gap-4">
-          <span onClick={() => setActiveId('settings')} className={cn("cursor-pointer transition-colors", isBright ? "text-slate-500 hover:text-slate-800" : "text-slate-400 hover:text-slate-200")}>Settings</span>
-          {inRoom && (
-            <span 
-              onClick={() => {
-                setInRoom(false)
-                setActiveId('play')
-              }} 
-              className="text-rose-500/80 hover:text-rose-450 cursor-pointer transition-colors font-semibold"
-            >
-              Leave
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-
-  const mockProblemPanel = (
-    <div className={cn(
-      "flex flex-col h-full p-6 overflow-y-auto no-scrollbar transition-colors duration-300",
-      isBright ? "text-slate-700" : "text-slate-300"
-    )}>
-      <div className="flex flex-wrap items-center gap-2 mb-4 text-[10px] font-bold tracking-wider select-none">
-        <span className={cn("px-3 py-1 rounded border uppercase", isBright ? "bg-[#FFF7F2] text-orange-600 border-orange-500/15" : "bg-[#1c140e] text-amber-500 border-amber-500/15")}>
-          Medium
-        </span>
-        <span className={cn("px-3 py-1 rounded border uppercase", isBright ? "bg-[#FFFDF2] text-amber-600 border-amber-500/15" : "bg-[#1c1c0e] text-yellow-500 border-yellow-500/15")}>
-          250 Pts
-        </span>
-        <span className={cn("px-3 py-1 rounded border uppercase", isBright ? "bg-[#F2FCF7] text-emerald-600 border-emerald-500/15" : "bg-[#0e1c14] text-emerald-400 border-emerald-500/15")}>
-          72.4% Acc.
-        </span>
-      </div>
-
-      <div className="mb-4">
-        <h2 className={cn("text-xl font-extrabold tracking-tight leading-tight", isBright ? "text-[#1E1B4B]" : "text-white")}>
-          Find Duplicate Number
-        </h2>
-      </div>
-
-      <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-xs mb-6 border-b pb-4", isBright ? "text-slate-500 border-slate-200/80" : "text-slate-400/90 border-slate-900/60")}>
-        <div>Est. Time: <span className="text-purple-600 font-semibold">25 mins</span></div>
-        <div className={cn(isBright ? "text-slate-300" : "text-slate-700")}>•</div>
-        <div>Memory: <span className={cn("font-medium", isBright ? "text-slate-700" : "text-slate-355")}>256 MB</span></div>
-        <div className={cn(isBright ? "text-slate-300" : "text-slate-700")}>•</div>
-        <div>Time: <span className={cn("font-medium", isBright ? "text-slate-700" : "text-slate-355")}>1.5s</span></div>
-      </div>
-
-      <div className="space-y-5 text-sm leading-relaxed pr-1 flex-1">
-        <p className={isBright ? "text-slate-600" : "text-slate-300"}>
-          Given an array of integers <code className={cn("px-2 py-0.5 rounded font-mono text-xs border", isBright ? "bg-[#F2F4FA]/80 text-[#7C3AED] border-slate-200" : "bg-[#030407] text-[#7ba4d9] border-slate-900/60")}>nums</code> containing <code className={cn("px-2 py-0.5 rounded font-mono text-xs border", isBright ? "bg-[#F2F4FA]/80 text-[#7C3AED] border-slate-200" : "bg-[#030407] text-[#7ba4d9] border-slate-900/60")}>n + 1</code> integers where each integer is in the range <code className={cn("px-2 py-0.5 rounded font-mono text-xs border", isBright ? "bg-[#F2F4FA]/80 text-[#7C3AED] border-slate-200" : "bg-[#030407] text-[#7ba4d9] border-slate-900/60")}>[1, n]</code> inclusive.
-        </p>
-        <p className={isBright ? "text-slate-600" : "text-slate-300"}>
-          There is only <strong>one repeated number</strong> in <code className={cn("px-2 py-0.5 rounded font-mono text-xs border", isBright ? "bg-[#F2F4FA]/80 text-[#7C3AED] border-slate-200" : "bg-[#030407] text-[#7ba4d9] border-slate-900/60")}>nums</code>, return <em>this repeated number</em>.
-        </p>
-        
-        <div className={cn("pl-4 py-3 pr-3 rounded-r-lg border-l-2 border-y-transparent border-r-transparent space-y-1.5 text-xs", isBright ? "bg-[#F2F4FA]/80 border-l-amber-500/60" : "bg-[#030407] border-l-amber-500/40")}>
-          <div className={cn("font-semibold uppercase tracking-widest text-[9px] select-none", isBright ? "text-slate-500" : "text-slate-400")}>
-            Constraint
-          </div>
-          <p className={cn("leading-relaxed", isBright ? "text-slate-600" : "text-slate-400/90")}>
-            You must solve the problem <strong>without</strong> modifying the array <code className={cn("px-1.5 py-0.5 rounded font-mono", isBright ? "bg-white/80 text-[#7C3AED] border border-slate-100" : "bg-[#0c0d12] text-[#7ba4d9]")}>nums</code> and use only constant extra space.
-          </p>
-        </div>
-        
-        <div className="pt-2">
-          <span className={cn("text-xs font-bold uppercase tracking-wider block mb-2.5 select-none", isBright ? "text-slate-500" : "text-slate-400")}>
-            Quick Example
-          </span>
-          <pre className={cn("p-4 rounded-xl border text-xs font-mono overflow-x-auto leading-relaxed", isBright ? "bg-[#F2F4FA]/80 border-slate-200 text-slate-700" : "bg-[#030407] border-slate-900 text-slate-300")}>
-            Input: nums = [1,3,4,2,2]
-            Output: 2
-          </pre>
-        </div>
-
-        <div className={cn("border-t pt-5 mt-4 flex flex-wrap gap-1.5 select-none", isBright ? "border-slate-200" : "border-slate-900")}>
-          {['Array', 'Two Pointers', 'Binary Search', 'Cycle Detection'].map((tag) => (
-            <span 
-              key={tag} 
-              className={cn("px-2.5 py-1 rounded text-[10px] font-semibold border transition-colors", isBright ? "bg-white/70 text-slate-600 border-slate-200 hover:text-slate-800 hover:border-slate-350" : "bg-[#030407] text-slate-500 border-slate-900/60 hover:text-slate-400 hover:border-slate-805")}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-
-  const mockEditorPanel = (
-    <div className="flex flex-col h-full">
-      <div className={cn("flex h-11 items-center justify-between border-b px-4 text-xs transition-colors duration-300", isBright ? "border-slate-200/80 text-slate-700" : "border-slate-900 text-slate-350")}>
-        <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
-          <span className={cn("font-mono font-semibold", isBright ? "text-slate-700" : "text-slate-300")}>solution.ts</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button className={cn("flex items-center gap-1.5 px-3 py-1 rounded border transition-colors", isBright ? "bg-white/80 text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-800" : "bg-slate-900 text-slate-400 border-slate-800/60 hover:bg-slate-800 hover:text-slate-200")}>
-            <Cpu size={12} />
-            <span>TypeScript</span>
-          </button>
-        </div>
-      </div>
-      
-      <div className={cn("flex-1 p-6 font-mono text-sm overflow-y-auto transition-colors duration-300", isBright ? "bg-[#ffffff]/30 text-slate-800" : "bg-[#080b11]/90 text-slate-400")}>
-        <div className={cn("text-xs select-none space-y-1 inline-block text-right pr-4 border-r mr-4", isBright ? "text-slate-400 border-slate-200" : "text-slate-600 border-slate-900")}>
-          <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div>
-        </div>
-        <div className="inline-block align-top space-y-1">
-          <div><span className={cn(isBright ? "text-purple-700 font-semibold" : "text-purple-400")}>export</span> <span className={cn(isBright ? "text-blue-700 font-semibold" : "text-blue-400")}>function</span> <span className={cn(isBright ? "text-amber-700 font-semibold" : "text-yellow-400")}>findDuplicate</span>(nums: <span className={cn(isBright ? "text-emerald-700 font-semibold" : "text-emerald-400")}>number[]</span>): <span className={cn(isBright ? "text-emerald-700 font-semibold" : "text-emerald-400")}>number</span> &#123;</div>
-          <div className="pl-4"><span className="text-slate-500">// Floyd's Tortoise and Hare (Cycle Detection)</span></div>
-          <div className="pl-4"><span className={cn(isBright ? "text-purple-700 font-semibold" : "text-purple-400")}>let</span> tortoise = nums[<span className="text-amber-500 font-semibold">0</span>];</div>
-          <div className="pl-4"><span className={cn(isBright ? "text-purple-700 font-semibold" : "text-purple-400")}>let</span> hare = nums[<span className="text-amber-500 font-semibold">0</span>];</div>
-          <div className="pl-4">&nbsp;</div>
-          <div className="pl-4"><span className={cn(isBright ? "text-purple-700 font-semibold" : "text-purple-400")}>do</span> &#123;</div>
-          <div className="pl-8">tortoise = nums[tortoise];</div>
-          <div className="pl-8">hare = nums[nums[hare]];</div>
-          <div className="pl-4">&#125; <span className={cn(isBright ? "text-purple-700 font-semibold" : "text-purple-400")}>while</span> (tortoise !== hare);</div>
-          <div className="pl-4">&nbsp;</div>
-          <div className="pl-4"><span className="text-slate-500">// Find index where duplicate cycle starts...</span></div>
-        </div>
-      </div>
-    </div>
-  )
-
-  const mockTeamPanel = (
-    <div className={cn("flex flex-col border-b p-6 flex-1 transition-colors duration-300", isBright ? "border-slate-200/80" : "border-slate-900")}>
-      <span className="text-[10px] font-bold text-slate-500/60 uppercase tracking-[0.15em] block mb-4 flex items-center gap-1.5 select-none">
-        <Users size={14} className="text-slate-550" />
-        Lobby Members
-        <span className={cn("ml-auto text-[10px] px-2 py-0.5 rounded border lowercase tracking-normal", isBright ? "text-emerald-600 bg-emerald-500/10 border-emerald-500/20" : "text-emerald-400/80 bg-emerald-500/5 border-emerald-500/10")}>
-          Active: 3/4
-        </span>
-      </span>
-      
-      <div className="space-y-2.5 overflow-y-auto no-scrollbar flex-1 pr-1">
-        {[
-          { name: 'Kaelen', lp: '1,920 LP', status: 'Coding...', color: 'bg-amber-500/60' },
-          { name: 'Sora_Dev', lp: '1,820 LP', status: 'Ready', color: 'bg-emerald-500/65' },
-          { name: 'Nexus_Core', lp: '1,450 LP', status: 'Submitted (Wrong Answer)', color: 'bg-rose-500/60' },
-        ].map((member) => (
-          <div key={member.name} className={cn("flex items-center justify-between p-2.5 rounded-lg border transition-all duration-300", isBright ? "bg-[#ffffff]/80 border-slate-200/80" : "bg-[#080c14]/25 border-slate-900/40")}>
-            <div className="flex items-center gap-2.5">
-              <div className={`w-2.5 h-2.5 rounded-full ${member.color}`} />
-              <div>
-                <span className={cn("text-xs font-semibold block", isBright ? "text-slate-700" : "text-slate-350")}>{member.name}</span>
-                <span className={cn("text-[10px]", isBright ? "text-slate-400" : "text-slate-550")}>{member.lp}</span>
-              </div>
-            </div>
-            <span className={cn("text-[10px] font-mono px-2 py-0.5 rounded border transition-colors", isBright ? "text-slate-600 bg-[#F2F4FA]/80 border-slate-200" : "text-slate-400/70 bg-slate-900/40 border-slate-800/30")}>
-              {member.status}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-
-  const mockActivityPanel = (
-    <div className="flex flex-col p-6 h-[220px]">
-      <span className="text-[10px] font-bold text-slate-500/60 uppercase tracking-[0.15em] block mb-4 flex items-center gap-1.5 select-none">
-        <Trophy size={14} className="text-slate-550" />
-        Live Feed
-      </span>
-      
-      <div className="space-y-3 overflow-y-auto no-scrollbar flex-1 pr-1">
-        {[
-          { text: 'Kaelen solved #92 in 14 mins', time: '2m ago', icon: <CheckCircle2 size={12} className="text-emerald-500/70" /> },
-          { text: 'Nexus_Core submitted TypeScript error', time: '5m ago', icon: <BookOpen size={12} className="text-slate-500" /> },
-        ].map((act, i) => (
-          <div key={i} className={cn("flex items-start gap-2.5 text-xs transition-colors", isBright ? "text-slate-600" : "text-slate-400")}>
-            <span className="mt-0.5 flex-shrink-0">{act.icon}</span>
-            <div className="flex-1">
-              <p className="leading-relaxed text-[11px]">{act.text}</p>
-              <span className="text-[9px] text-slate-500/80 block mt-0.5">{act.time}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-
-  const mockFooter = (
-    <div className={cn("flex h-8 items-center justify-between border-t px-6 text-[10px] font-mono transition-colors duration-300", isBright ? "border-slate-200/80 bg-[#ffffff]/60 backdrop-blur-md text-slate-500" : "border-slate-900 bg-[#04060a]/90 backdrop-blur-md text-slate-500")}>
-      <span />
-      <div className="flex items-center gap-4">
-        <span>RTT: 12ms</span>
-        <span>LATENCY: 42ms</span>
-      </div>
-    </div>
-  )
 
   // Interactive Play Matchmaking Dashboard - Rebuilt with Bright Apple + Arc + Linear Design Language
   const renderPlayDashboard = () => {
@@ -484,7 +242,7 @@ export function EmptyHomePage() {
 
           {/* View 2: Arena Layout - Dynamically mounted in the same DOM tree, transition via CSS */}
           <div 
-            className="absolute inset-0 flex flex-col transition-all duration-300 ease-out"
+            className="absolute inset-0 flex flex-col transition-all duration-300 ease-out animate-fade-in"
             style={{
               opacity: inRoom ? 1 : 0,
               visibility: inRoom ? 'visible' : 'hidden',
@@ -496,23 +254,93 @@ export function EmptyHomePage() {
               zIndex: inRoom ? 20 : 10
             }}
           >
-            {mockTopNav}
-            <div className="flex flex-1 overflow-hidden min-h-0">
-              <div className="w-[16px] flex-shrink-0" />
-              <main className="flex flex-1 overflow-hidden min-h-0">
-                <section className="ambient-material flex w-[360px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-bg">
-                  {mockProblemPanel}
-                </section>
-                <section className="ambient-material flex flex-1 flex-col overflow-hidden bg-bg">
-                  {mockEditorPanel}
-                </section>
-                <aside className="ambient-material flex w-[360px] flex-shrink-0 flex-col overflow-hidden border-l border-border bg-bg">
-                  {mockTeamPanel}
-                  {mockActivityPanel}
-                </aside>
-              </main>
-            </div>
-            {mockFooter}
+            <ArenaLayout 
+              isBright={isBright}
+              topNav={
+                <ArenaTopbar 
+                  activeId={activeId}
+                  onChangeActiveId={setActiveId}
+                  inRoom={inRoom}
+                  isBright={isBright}
+                  onLeave={() => {
+                    setInRoom(false)
+                    setActiveId('play')
+                  }}
+                />
+              }
+              sidebar={null}
+              problemPanel={
+                <ProblemPanel 
+                  title="Find Duplicate Number"
+                  difficulty="Medium"
+                  points={250}
+                  acceptance="72.4%"
+                  estTime="25 mins"
+                  memory="256 MB"
+                  timeLimit="1.5s"
+                  statementHtml={[
+                    "Given an array of integers <code>nums</code> containing <code>n + 1</code> integers where each integer is in the range <code>[1, n]</code> inclusive.",
+                    "There is only <strong>one repeated number</strong> in <code>nums</code>, return <em>this repeated number</em>."
+                  ]}
+                  constraints={[
+                    "You must solve the problem <strong>without</strong> modifying the array <code>nums</code> and use only constant extra space."
+                  ]}
+                  examples={[
+                    {
+                      id: 1,
+                      input: "nums = [1,3,4,2,2]",
+                      output: "2"
+                    }
+                  ]}
+                  tags={['Array', 'Two Pointers', 'Binary Search', 'Cycle Detection']}
+                  isBright={isBright}
+                />
+              }
+              editorToolbar={
+                <EditorToolbar 
+                  filename="solution.ts"
+                  activeLanguage={language}
+                  onLanguageChange={setLanguage}
+                  activeTheme={theme}
+                  onThemeChange={setTheme}
+                  isBright={isBright}
+                  onReset={() => setCodeValue(dummyCode)}
+                  onRun={() => alert("Simulating compilation of " + language + " solution...")}
+                  onSubmit={() => alert("Submitting solution for matching evaluation verification!")}
+                />
+              }
+              codeEditor={
+                <CodeEditor 
+                  value={codeValue}
+                  language={language}
+                  theme={theme}
+                  isBright={isBright}
+                  onChange={setCodeValue}
+                />
+              }
+              lobbySidebar={
+                <LobbySidebar 
+                  activeCount={3}
+                  maxCount={4}
+                  members={[
+                    { name: 'Kaelen', lp: '1,920 LP', status: 'Coding...', colorClass: 'bg-amber-500/60' },
+                    { name: 'Sora_Dev', lp: '1,820 LP', status: 'Ready', colorClass: 'bg-emerald-500/65' },
+                    { name: 'Nexus_Core', lp: '1,450 LP', status: 'Submitted (Wrong Answer)', colorClass: 'bg-rose-500/60' },
+                  ]}
+                  activities={[
+                    { text: 'Kaelen solved #92 in 14 mins', time: '2m ago', icon: <CheckCircle2 size={12} className="text-emerald-500/70" /> },
+                    { text: 'Nexus_Core submitted TypeScript error', time: '5m ago', icon: <BookOpen size={12} className="text-slate-500" /> },
+                  ]}
+                  isBright={isBright}
+                />
+              }
+              consolePanel={
+                <ConsolePanel 
+                  isBright={isBright}
+                  initialCollapsed={true}
+                />
+              }
+            />
           </div>
 
         </div>
