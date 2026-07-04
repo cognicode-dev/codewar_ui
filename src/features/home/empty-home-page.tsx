@@ -331,9 +331,6 @@ export function EmptyHomePage() {
   const renderPlayDashboard = () => {
     return (
       <div className="flex-1 flex flex-col h-full bg-transparent overflow-visible pl-[40px] pr-[40px] pt-[2px] pb-[16px] max-w-[1440px] mx-auto w-full select-none text-left">
-        {/* Top Bar - Spans full width at the top */}
-        <HomeTopBar />
-        
         {/* Main Content Area */}
         <div className="flex-1 flex flex-row items-stretch mt-2 gap-8 overflow-visible min-h-0">
           
@@ -434,8 +431,10 @@ export function EmptyHomePage() {
               zIndex: !inRoom ? 20 : 10
             }}
           >
-            {/* Top Bar - Spans full width at the top */}
-            <HomeTopBar />
+            {/* Top Bar - Spans full width at the top with matching layout padding alignment */}
+            <div className="pl-[40px] pr-[40px] w-full flex-shrink-0">
+              <HomeTopBar />
+            </div>
             
             {/* Dashboard Content Client Viewport */}
             <div className="flex-grow min-h-0 relative w-full h-full">
