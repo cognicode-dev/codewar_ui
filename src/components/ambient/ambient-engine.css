@@ -1,0 +1,165 @@
+.ambient-engine {
+  --ambient-x: 0px;
+  --ambient-y: 0px;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg);
+}
+
+.ambient-engine__blob {
+  position: absolute;
+  will-change: transform;
+  transform: translate3d(
+    calc(var(--ambient-x) * var(--ambient-parallax-x)),
+    calc(var(--ambient-y) * var(--ambient-parallax-y)),
+    0
+  );
+}
+
+.ambient-engine__blob-core {
+  width: var(--ambient-size);
+  height: var(--ambient-size);
+  border-radius: 9999px;
+  background: radial-gradient(circle, var(--ambient-color) 0%, transparent 68%);
+  filter: blur(80px);
+  opacity: 1;
+  will-change: transform;
+}
+
+.ambient-engine__blob--blue {
+  --ambient-size: 820px;
+  --ambient-color: rgba(70, 120, 255, 0.12);
+  --ambient-parallax-x: 1;
+  --ambient-parallax-y: 0.8;
+  left: -260px;
+  top: -300px;
+}
+
+.ambient-engine__blob--blue .ambient-engine__blob-core {
+  animation: ambient-drift-blue 75s ease-in-out infinite alternate;
+}
+
+.ambient-engine__blob--purple {
+  --ambient-size: 880px;
+  --ambient-color: rgba(124, 77, 255, 0.08);
+  --ambient-parallax-x: -0.8;
+  --ambient-parallax-y: -1;
+  bottom: -340px;
+  right: -300px;
+}
+
+.ambient-engine__blob--purple .ambient-engine__blob-core {
+  animation: ambient-drift-purple 95s ease-in-out infinite alternate;
+}
+
+.ambient-engine__blob--cyan {
+  --ambient-size: 420px;
+  --ambient-color: rgba(0, 212, 255, 0.05);
+  --ambient-parallax-x: 0.45;
+  --ambient-parallax-y: -0.6;
+  left: 42%;
+  top: -120px;
+}
+
+.ambient-engine__blob--cyan .ambient-engine__blob-core {
+  animation: ambient-drift-cyan 120s ease-in-out infinite alternate;
+}
+
+.ambient-engine__noise {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.01;
+  mix-blend-mode: overlay;
+}
+
+.ambient-engine__vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, transparent 58%, rgba(0, 0, 0, 0.12) 100%);
+}
+
+.ambient-app-content {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+.ambient-material {
+  background: rgba(14, 18, 28, 0.55) !important;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.light-theme .ambient-material {
+  background: rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.ambient-editor-surface {
+  position: relative;
+}
+
+.ambient-editor-surface::before,
+.ambient-editor-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ambient-editor-surface::before {
+  opacity: 0.005;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.45) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.45) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.ambient-editor-surface::after {
+  opacity: 0.008;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+@keyframes ambient-drift-blue {
+  from {
+    transform: translate3d(-18px, 8px, 0) scale(1);
+  }
+  to {
+    transform: translate3d(72px, 54px, 0) scale(1.08);
+  }
+}
+
+@keyframes ambient-drift-purple {
+  from {
+    transform: translate3d(28px, 18px, 0) scale(1.04);
+  }
+  to {
+    transform: translate3d(-78px, -46px, 0) scale(0.96);
+  }
+}
+
+@keyframes ambient-drift-cyan {
+  from {
+    transform: translate3d(-42px, 16px, 0) scale(0.94);
+  }
+  to {
+    transform: translate3d(48px, 72px, 0) scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-engine__blob-core {
+    animation: none !important;
+  }
+}
