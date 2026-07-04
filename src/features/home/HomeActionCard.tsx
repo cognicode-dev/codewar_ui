@@ -74,10 +74,10 @@ export function HomeActionCard({ title, subtitle, type, onClick }: HomeActionCar
             {title}
           </h3>
           <p 
-            className="font-normal leading-tight mt-0.5"
+            className="font-medium leading-tight mt-0.5"
             style={{
               fontSize: '12px',
-              color: '#8B92A6'
+              color: '#4B5563' // High-contrast slate gray for subtitle descriptions
             }}
           >
             {subtitle}

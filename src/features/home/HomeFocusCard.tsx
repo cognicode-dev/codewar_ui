@@ -11,50 +11,63 @@ export function HomeFocusCard() {
     >
       <div className="space-y-3">
         {/* Header */}
-        <div className="flex items-center gap-3">
-          <div 
-            className="w-10 h-10 rounded-2xl flex items-center justify-center border shrink-0"
-            style={{
-              background: 'rgba(124, 58, 237, 0.08)',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
-              borderColor: 'rgba(255, 255, 255, 0.65)'
+        <div className="flex items-start justify-between w-full">
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-10 h-10 rounded-2xl flex items-center justify-center border shrink-0"
+              style={{
+                background: 'rgba(124, 58, 237, 0.08)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                borderColor: 'rgba(255, 255, 255, 0.65)'
+              }}
+            >
+              <Swords size={18} strokeWidth={2} className="text-[#7C3AED]" />
+            </div>
+            <div>
+              <span 
+                className="block font-semibold uppercase"
+                style={{
+                  fontSize: '11px',
+                  color: '#5B21B6', // Deep purple-800 for strong card header legibility
+                  letterSpacing: '1.2px',
+                  lineHeight: 'tight'
+                }}
+              >
+                Current Session
+              </span>
+              <h3 
+                className="font-semibold leading-tight mt-0.5"
+                style={{
+                  fontSize: '18px',
+                  color: '#1A1533'
+                }}
+              >
+                Ranked 2v2
+              </h3>
+              <span 
+                className="font-medium flex items-center gap-1.5 leading-tight mt-1"
+                style={{
+                  fontSize: '12px',
+                  color: '#4B5563' // High-contrast slate gray for status text
+                }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse shrink-0" />
+                Searching...
+              </span>
+            </div>
+          </div>
+          
+          {/* Cancel Matchmaking Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              // Mock cancel matchmaking queue action
             }}
+            className="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 border border-rose-500/20 text-[10px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0 mt-0.5"
           >
-            <Swords size={18} strokeWidth={2} className="text-[#7C3AED]" />
-          </div>
-          <div>
-            <span 
-              className="block font-semibold uppercase"
-              style={{
-                fontSize: '11px',
-                color: '#5B21B6', // Deep purple-800 for strong card header legibility
-                letterSpacing: '1.2px',
-                lineHeight: 'tight'
-              }}
-            >
-              Current Session
-            </span>
-            <h3 
-              className="font-semibold leading-tight mt-0.5"
-              style={{
-                fontSize: '18px',
-                color: '#1A1533'
-              }}
-            >
-              Ranked 2v2
-            </h3>
-            <span 
-              className="font-medium flex items-center gap-1.5 leading-tight mt-1"
-              style={{
-                fontSize: '12px',
-                color: '#4B5563' // High-contrast slate gray for status text
-              }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse shrink-0" />
-              Searching...
-            </span>
-          </div>
+            Cancel
+          </button>
         </div>
       </div>
 
