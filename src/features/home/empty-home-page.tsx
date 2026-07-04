@@ -559,17 +559,9 @@ export function EmptyHomePage() {
           }}
         />
 
-        {/* Panoramic Scenery Backdrop: Scaled down by 10% to 94vw and 900px to avoid competing with UI elements */}
+        {/* Panoramic Scenery Backdrop: Stretched to full-screen (absolute inset-0) to permanently hide container edges */}
         <div 
-          className="absolute pointer-events-none overflow-hidden flex items-center justify-center hero-elliptical-mask"
-          style={{
-            width: '94vw',
-            height: '900px',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%) translateX(-16px) translateY(-25px)',
-            zIndex: 10
-          }}
+          className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center hero-elliptical-mask-v3 z-10"
         >
           {/* Layer 1: Base Scenery Image - Renders pre-blurred WebP inside room to eliminate GPU Gaussian blur convolution overhead */}
           <img
@@ -616,11 +608,11 @@ export function EmptyHomePage() {
             }}
           />
 
-          {/* Layer 5: Top Bloom - Height reduced by 25% to 135px and faded faster for organic atmosphere recovery */}
+          {/* Layer 5: Top Bloom - Height thinned to 95px and faded faster to recover top environment atmosphere */}
           <div 
-            className="absolute left-0 right-0 top-0 h-[135px] pointer-events-none z-15"
+            className="absolute left-0 right-0 top-0 h-[95px] pointer-events-none z-15"
             style={{
-              background: 'linear-gradient(to bottom, #F7F8FC 0%, rgba(247, 244, 255, 0.5) 45%, transparent 100%)'
+              background: 'linear-gradient(to bottom, #F7F8FC 0%, rgba(247, 244, 255, 0.3) 30%, transparent 100%)'
             }}
           />
 
