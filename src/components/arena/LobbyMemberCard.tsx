@@ -54,7 +54,7 @@ export function LobbyMemberCard({ name, status, isBright = false }: LobbyMemberC
 
   return (
     <div className={cn(
-      "relative flex flex-col justify-center px-3.5 h-[46px] rounded-xl border border-l-[3px] transition-all duration-300 bg-gradient-to-r select-none overflow-hidden",
+      "relative flex flex-col justify-center px-3.5 h-[44px] rounded-xl border border-l-[3px] transition-all duration-300 bg-gradient-to-r select-none overflow-hidden",
       bannerGradient,
       isBright ? "border-slate-200/80 shadow-sm" : "border-slate-900/50"
     )}>
