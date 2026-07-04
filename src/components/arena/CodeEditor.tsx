@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { cn } from '@/utils'
 
 interface CodeEditorProps {
@@ -20,8 +20,28 @@ export function CodeEditor({
   const highlightRef = useRef<HTMLDivElement>(null)
   const lineNumbersRef = useRef<HTMLDivElement>(null)
 
+  // Local state for immediate typing renders (averts full parent page re-renders)
+  const [localValue, setLocalValue] = useState(value)
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+
+  // Synchronize when the initial or reset value changes from the parent component
+  useEffect(() => {
+    if (value !== localValue) {
+      setLocalValue(value)
+    }
+  }, [value])
+
+  // Clear timer on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current)
+      }
+    }
+  }, [])
+
   // Split code by newline to render line-by-line syntax coloring & line numbers
-  const lines = value.split('\n')
+  const lines = localValue.split('\n')
 
   // Synchronize scrolls between textarea, highlighted text, and line numbers column
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
@@ -35,13 +55,26 @@ export function CodeEditor({
     }
   }
 
+  // Set local state immediately for 60fps render speed, then debounce parent update
+  const handleTextChange = (newVal: string) => {
+    setLocalValue(newVal)
+
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
+    }
+
+    debounceTimer.current = setTimeout(() => {
+      onChange?.(newVal)
+    }, 300)
+  }
+
   // Handle Tab keypress to insert 2 spaces instead of moving input focus
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Tab') {
       e.preventDefault()
       const { selectionStart, selectionEnd } = e.currentTarget
-      const newValue = value.substring(0, selectionStart) + '  ' + value.substring(selectionEnd)
-      onChange?.(newValue)
+      const newValue = localValue.substring(0, selectionStart) + '  ' + localValue.substring(selectionEnd)
+      handleTextChange(newValue)
 
       // Reposition caret right after insertion
       setTimeout(() => {
@@ -62,7 +95,7 @@ export function CodeEditor({
         ref={lineNumbersRef}
         className={cn(
           "py-6 px-4 text-right select-none flex-shrink-0 border-r border-dashed text-xs overflow-hidden h-full",
-          isBright ? "text-slate-400 border-slate-200" : "text-slate-655 border-slate-900"
+          isBright ? "text-slate-400 border-slate-205" : "text-slate-655 border-slate-900"
         )}
         style={{ scrollbarWidth: 'none' }}
       >
@@ -127,8 +160,8 @@ export function CodeEditor({
         {/* Layer 2: Transparent Textarea Input Layer (Captures caret, scroll, and type actions) */}
         <textarea
           ref={textareaRef}
-          value={value}
-          onChange={(e) => onChange?.(e.target.value)}
+          value={localValue}
+          onChange={(e) => handleTextChange(e.target.value)}
           onScroll={handleScroll}
           onKeyDown={handleKeyDown}
           spellCheck={false}
