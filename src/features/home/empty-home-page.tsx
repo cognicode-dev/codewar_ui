@@ -559,15 +559,15 @@ export function EmptyHomePage() {
           }}
         />
 
-        {/* Panoramic Scenery Backdrop: Relocated to Root Level at 104vw to permanently push borders off-screen */}
+        {/* Panoramic Scenery Backdrop: Scaled down by 10% to 94vw and 900px to avoid competing with UI elements */}
         <div 
           className="absolute pointer-events-none overflow-hidden flex items-center justify-center hero-elliptical-mask"
           style={{
-            width: '104vw',
-            height: '1020px',
+            width: '94vw',
+            height: '900px',
             top: '50%',
             left: '50%',
-            transform: 'translate(-50%, -50%) translateX(-24px) translateY(-40px)',
+            transform: 'translate(-50%, -50%) translateX(-16px) translateY(-25px)',
             zIndex: 10
           }}
         >
@@ -584,27 +584,27 @@ export function EmptyHomePage() {
             }}
           />
 
-          {/* Layer 2: Left/Right linear fade overlay to cover vertical edges with #F7F8FC (100% cross-browser safe) */}
+          {/* Layer 2: Asymmetrical Left/Right linear fade (Left fades slower at 22%, Right fades even slower at 82%) */}
           <div 
             className="absolute inset-0 pointer-events-none z-12"
             style={{
-              background: 'linear-gradient(90deg, #F7F8FC 0%, rgba(247, 248, 252, 0.8) 12%, transparent 35%, transparent 65%, rgba(247, 248, 252, 0.8) 88%, #F7F8FC 100%)'
+              background: 'linear-gradient(90deg, #F7F8FC 0%, rgba(247, 248, 252, 0.8) 8%, transparent 22%, transparent 82%, rgba(247, 248, 252, 0.8) 92%, #F7F8FC 100%)'
             }}
           />
 
-          {/* Layer 3: Top/Bottom linear fade overlay to cover horizontal edges with #F7F8FC (100% cross-browser safe) */}
+          {/* Layer 3: Asymmetrical Top/Bottom linear fade (Top fades least at 18%, Bottom fades stronger at 80%) */}
           <div 
             className="absolute inset-0 pointer-events-none z-13"
             style={{
-              background: 'linear-gradient(180deg, #F7F8FC 0%, rgba(247, 248, 252, 0.8) 12%, transparent 35%, transparent 65%, rgba(247, 248, 252, 0.8) 88%, #F7F8FC 100%)'
+              background: 'linear-gradient(180deg, #F7F8FC 0%, rgba(247, 248, 252, 0.8) 8%, transparent 18%, transparent 80%, rgba(247, 248, 252, 0.8) 92%, #F7F8FC 100%)'
             }}
           />
 
-          {/* Layer 4: Elliptical radial fade overlay to cover corners with #F7F8FC (100% cross-browser safe) */}
+          {/* Layer 4: Elliptical radial fade overlay to cover corners - Expanded transparent viewport to 55% */}
           <div 
             className="absolute inset-0 pointer-events-none z-14"
             style={{
-              background: 'radial-gradient(ellipse at center, transparent 45%, rgba(247, 244, 255, 0.3) 65%, rgba(247, 248, 252, 0.95) 88%, #F7F8FC 100%)'
+              background: 'radial-gradient(ellipse at center, transparent 55%, rgba(247, 244, 255, 0.25) 72%, rgba(247, 248, 252, 0.9) 88%, #F7F8FC 100%)'
             }}
           />
 
@@ -616,19 +616,19 @@ export function EmptyHomePage() {
             }}
           />
 
-          {/* Layer 5: Top Bloom - dissolves top branches into page background color */}
+          {/* Layer 5: Top Bloom - Height reduced by 25% to 135px and faded faster for organic atmosphere recovery */}
           <div 
-            className="absolute left-0 right-0 top-0 h-[180px] pointer-events-none z-15"
+            className="absolute left-0 right-0 top-0 h-[135px] pointer-events-none z-15"
             style={{
-              background: 'linear-gradient(to bottom, #F7F8FC 0%, #F7F4FF 30%, rgba(247, 244, 255, 0.6) 65%, transparent 100%)'
+              background: 'linear-gradient(to bottom, #F7F8FC 0%, rgba(247, 244, 255, 0.5) 45%, transparent 100%)'
             }}
           />
 
-          {/* Layer 6: Bottom Mist Overlay - reduced height to 200px to maintain dark environment contrast behind Recent Activity */}
+          {/* Layer 6: Bottom Mist Overlay - maintained at 200px with smoother bottom-up gradient blending */}
           <div 
             className="absolute left-0 right-0 bottom-0 h-[200px] pointer-events-none z-15"
             style={{
-              background: 'linear-gradient(to top, #F7F8FC 5%, #F7F4FF 30%, rgba(247, 244, 255, 0.4) 65%, transparent 100%)'
+              background: 'linear-gradient(to top, #F7F8FC 5%, #F7F4FF 30%, rgba(247, 244, 255, 0.35) 60%, transparent 100%)'
             }}
           />
 
