@@ -28,7 +28,7 @@ export function HomeFocusCard() {
               className="block font-semibold uppercase"
               style={{
                 fontSize: '11px',
-                color: '#8B5CF6',
+                color: '#5B21B6', // Deep purple-800 for strong card header legibility
                 letterSpacing: '1.2px',
                 lineHeight: 'tight'
               }}
@@ -45,10 +45,10 @@ export function HomeFocusCard() {
               Ranked 2v2
             </h3>
             <span 
-              className="font-normal flex items-center gap-1.5 leading-tight mt-1"
+              className="font-medium flex items-center gap-1.5 leading-tight mt-1"
               style={{
                 fontSize: '12px',
-                color: '#8B92A6'
+                color: '#4B5563' // High-contrast slate gray for status text
               }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse shrink-0" />
@@ -95,10 +95,10 @@ export function HomeFocusCard() {
               1 friend
             </span>
             <span 
-              className="font-normal block leading-tight mt-0.5"
+              className="font-medium block leading-tight mt-0.5"
               style={{
                 fontSize: '12px',
-                color: '#8B92A6'
+                color: '#4B5563' // High-contrast slate gray for status detail text
               }}
             >
               in queue

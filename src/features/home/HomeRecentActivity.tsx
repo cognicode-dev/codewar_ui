@@ -50,7 +50,7 @@ export function HomeRecentActivity() {
           className="font-semibold uppercase"
           style={{
             fontSize: '11px',
-            color: '#8B92A6',
+            color: '#5B21B6', // Deep purple-800 matching current session header for consistency & visibility
             letterSpacing: '1.2px'
           }}
         >
@@ -86,10 +86,10 @@ export function HomeRecentActivity() {
                   {item.title}
                 </h4>
                 <p 
-                  className="font-normal leading-tight mt-0.5"
+                  className="font-medium leading-tight mt-0.5"
                   style={{
                     fontSize: '11px',
-                    color: '#8B92A6'
+                    color: '#4B5563' // High-contrast slate gray for subtitle details
                   }}
                 >
                   {item.subtitle}
@@ -98,7 +98,7 @@ export function HomeRecentActivity() {
                   className="block mt-0.5"
                   style={{
                     fontSize: '9px',
-                    color: '#9CA3AF'
+                    color: '#6B7280' // Muted gray for time info with proper contrast
                   }}
                 >
                   {item.time}
