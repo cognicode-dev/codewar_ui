@@ -57,14 +57,13 @@ export function HomeFocusCard() {
               </span>
             </div>
           </div>
-          
           {/* Cancel Matchmaking Button */}
           <button
             onClick={(e) => {
               e.stopPropagation()
               // Mock cancel matchmaking queue action
             }}
-            className="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 border border-rose-500/20 text-[10px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0 mt-0.5"
+            className="px-4 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 border border-rose-500/20 text-[11px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0 mt-[16px]"
           >
             Cancel
           </button>
