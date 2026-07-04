@@ -15,10 +15,10 @@ export function TagList({ tags, isBright = false }: TagListProps) {
         <span 
           key={tag} 
           className={cn(
-            "px-2.5 py-1 rounded text-[10px] font-semibold border transition-colors",
+            "px-3 py-1 rounded-full text-[10px] font-bold transition-all duration-200 select-none",
             isBright 
-              ? "bg-white/70 text-slate-600 border-slate-200 hover:text-slate-800 hover:border-slate-350" 
-              : "bg-[#030407] text-slate-500 border-slate-900/60 hover:text-slate-400 hover:border-slate-800"
+              ? "bg-[#7C3AED]/8 text-[#7C3AED] hover:bg-[#7C3AED]/15" 
+              : "bg-[#7C3AED]/15 text-purple-300 hover:bg-[#7C3AED]/25"
           )}
         >
           {tag}

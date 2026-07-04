@@ -14,7 +14,7 @@ export function ResizablePanels({
   rightPanel,
   isBright = false,
 }: ResizablePanelsProps) {
-  const [leftWidth, setLeftWidth] = useState(380)
+  const [leftWidth, setLeftWidth] = useState(410)
   const [rightWidth, setRightWidth] = useState(300)
   
   const isDraggingLeft = useRef(false)

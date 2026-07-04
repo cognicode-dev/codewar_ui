@@ -42,55 +42,51 @@ export function EditorToolbar({
         </span>
       </div>
 
-      {/* Middle side: Selectors */}
-      <div className="flex items-center gap-3">
+      {/* Middle side: Segmented Configuration Control (Language | Theme) */}
+      <div className={cn(
+        "flex items-center gap-2 p-0.5 rounded-xl border select-none",
+        isBright ? "bg-slate-50 border-slate-205" : "bg-[#0c0d12]/75 border-slate-900"
+      )}>
         {/* Language Select */}
-        <div className="relative flex items-center gap-1.5">
+        <div className="relative flex items-center gap-1.5 pl-2.5 pr-1 py-0.5">
           <Cpu size={12} className="text-slate-400" />
           <select
             value={activeLanguage}
             onChange={(e) => onLanguageChange(e.target.value)}
-            className={cn(
-              "px-2 py-0.5 rounded border text-[11px] font-semibold cursor-pointer outline-none transition-colors",
-              isBright 
-                ? "bg-white text-slate-700 border-slate-200 hover:bg-slate-50" 
-                : "bg-slate-950 text-slate-300 border-slate-900/60 hover:bg-slate-900"
-            )}
+            className="bg-transparent text-slate-700 dark:text-slate-300 text-[11px] font-bold cursor-pointer outline-none border-none pr-1"
           >
             {languages.map((lang) => (
-              <option key={lang} value={lang}>{lang}</option>
+              <option key={lang} value={lang} className="bg-white dark:bg-slate-950">{lang}</option>
             ))}
           </select>
         </div>
 
+        {/* Separator line */}
+        <div className="w-px h-4 bg-slate-200/80 dark:bg-slate-800" />
+
         {/* Theme Select */}
-        <div className="relative flex items-center gap-1.5">
+        <div className="relative flex items-center gap-1.5 pl-1 pr-2.5 py-0.5">
           <Palette size={12} className="text-slate-400" />
           <select
             value={activeTheme}
             onChange={(e) => onThemeChange(e.target.value)}
-            className={cn(
-              "px-2 py-0.5 rounded border text-[11px] font-semibold cursor-pointer outline-none transition-colors",
-              isBright 
-                ? "bg-white text-slate-700 border-slate-200 hover:bg-slate-50" 
-                : "bg-slate-950 text-slate-300 border-slate-900/60 hover:bg-slate-900"
-            )}
+            className="bg-transparent text-slate-700 dark:text-slate-300 text-[11px] font-bold cursor-pointer outline-none border-none pr-1"
           >
-            {themes.map((theme) => (
-              <option key={theme} value={theme}>{theme}</option>
+            {themes.map((t) => (
+              <option key={t} value={t} className="bg-white dark:bg-slate-950">{t}</option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* Right side: Control buttons */}
+      {/* Right side: Action Control Buttons Group */}
       <div className="flex items-center gap-2">
         <button 
           onClick={onReset}
           className={cn(
-            "flex items-center gap-1 px-2.5 py-1 rounded-xl border text-[11px] font-semibold cursor-pointer transition-all duration-200 active:scale-95",
+            "flex items-center gap-1 px-3 py-1.5 rounded-xl border text-[11px] font-bold cursor-pointer transition-all duration-200 active:scale-95",
             isBright 
-              ? "bg-white text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-800" 
+              ? "bg-white text-slate-600 border-slate-205 hover:bg-slate-100 hover:text-slate-800" 
               : "bg-slate-950 text-slate-400 border-slate-900 hover:bg-slate-900 hover:text-slate-200"
           )}
           title="Reset Code"
@@ -102,9 +98,9 @@ export function EditorToolbar({
         <button 
           onClick={onRun}
           className={cn(
-            "flex items-center gap-1 px-2.5 py-1 rounded-xl border text-[11px] font-semibold cursor-pointer transition-all duration-200 active:scale-95",
+            "flex items-center gap-1 px-3 py-1.5 rounded-xl border text-[11px] font-bold cursor-pointer transition-all duration-200 active:scale-95",
             isBright 
-              ? "bg-white text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-800" 
+              ? "bg-white text-slate-600 border-slate-205 hover:bg-slate-100 hover:text-slate-800" 
               : "bg-slate-950 text-slate-400 border-slate-900 hover:bg-slate-900 hover:text-slate-200"
           )}
           title="Run Code"
@@ -115,11 +111,12 @@ export function EditorToolbar({
 
         <button 
           onClick={onSubmit}
-          className="flex items-center gap-1 px-3.5 py-1 rounded-xl text-[11px] font-bold text-white cursor-pointer transition-all duration-200 active:scale-95 shadow-[0_4px_12px_rgba(124,58,237,0.22)] bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500"
-          title="Submit Solution"
+          className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-[11px] font-bold text-white cursor-pointer transition-all duration-200 active:scale-95 shadow-[0_0_15px_rgba(124,58,237,0.35)] bg-gradient-to-r from-violet-650 to-indigo-650 hover:from-violet-550 hover:to-indigo-550"
+          title="Submit Solution (Ctrl+Enter)"
         >
           <CheckSquare size={11} />
           <span>Submit</span>
+          <span className="opacity-60 text-[9px] font-mono font-normal ml-0.5 bg-white/20 px-1 py-0.5 rounded leading-none shrink-0">Ctrl+Enter</span>
         </button>
       </div>
     </div>

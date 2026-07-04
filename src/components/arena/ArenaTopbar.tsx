@@ -47,40 +47,12 @@ export function ArenaTopbar({
           <span className="font-bold uppercase tracking-wider text-[10px]">CodeWar</span>
         </div>
         <div className={cn("h-4 w-px", isBright ? "bg-slate-200" : "bg-slate-900")} />
-        <div className="flex items-center gap-4">
-          <span 
-            onClick={() => onChangeActiveId('arena')} 
-            className={cn(
-              "cursor-pointer transition-colors px-2.5 py-1 rounded border", 
-              activeId === 'arena' 
-                ? (isBright ? "text-slate-800 font-semibold bg-white border-slate-200 shadow-sm" : "text-slate-100 font-semibold bg-slate-955 border-slate-900") 
-                : (isBright ? "text-slate-500 hover:text-slate-800" : "text-slate-400 hover:text-slate-200")
-            )}
-          >
-            Arena
-          </span>
-          <span 
-            onClick={() => onChangeActiveId('ranked')} 
-            className={cn(
-              "cursor-pointer transition-colors px-2.5 py-1 rounded border", 
-              activeId === 'ranked' 
-                ? (isBright ? "text-slate-800 font-semibold bg-white border-slate-200 shadow-sm" : "text-slate-100 font-semibold bg-slate-955 border-slate-900") 
-                : (isBright ? "text-slate-500 hover:text-slate-800" : "text-slate-400 hover:text-slate-200")
-            )}
-          >
-            Ranked
-          </span>
-          <span 
-            onClick={() => onChangeActiveId('practice')} 
-            className={cn(
-              "cursor-pointer transition-colors px-2.5 py-1 rounded border", 
-              activeId === 'practice' 
-                ? (isBright ? "text-slate-800 font-semibold bg-white border-slate-200 shadow-sm" : "text-slate-100 font-semibold bg-slate-955 border-slate-900") 
-                : (isBright ? "text-slate-500 hover:text-slate-800" : "text-slate-400 hover:text-slate-200")
-            )}
-          >
-            Practice
-          </span>
+        <div className="flex items-center gap-1.5 text-[10.5px] font-mono tracking-wide font-medium select-none">
+          <span className={cn(isBright ? "text-slate-450 hover:text-slate-600" : "text-slate-550 hover:text-slate-350")}>Arena</span>
+          <span className={cn(isBright ? "text-slate-300" : "text-slate-800")}>/</span>
+          <span className={cn(isBright ? "text-slate-450 hover:text-slate-600" : "text-slate-550 hover:text-slate-350")}>Ranked</span>
+          <span className={cn(isBright ? "text-slate-300" : "text-slate-800")}>/</span>
+          <span className={cn("font-semibold", isBright ? "text-[#7C3AED]" : "text-purple-400")}>Match #492</span>
         </div>
       </div>
 
