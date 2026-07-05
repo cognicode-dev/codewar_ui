@@ -1,5 +1,7 @@
-import { motion } from 'motion/react'
-import { Swords, ChevronRight } from 'lucide-react'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
+import { Swords, ChevronRight, Sliders, X, Check } from 'lucide-react'
+import { cn } from '@/utils'
 
 interface HomeFocusCardProps {
   matchState?: 'idle' | 'searching' | 'loading'
@@ -16,6 +18,10 @@ export function HomeFocusCard({
   onCancel,
   onStartSearch
 }: HomeFocusCardProps) {
+  const [showModal, setShowModal] = useState(false)
+  const [selectedDifficulty, setSelectedDifficulty] = useState('Easy')
+  const [selectedTopics, setSelectedTopics] = useState<string[]>(['Array'])
+
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60).toString().padStart(2, '0')
     const s = (secs % 60).toString().padStart(2, '0')
@@ -23,6 +29,14 @@ export function HomeFocusCard({
   }
 
   const isSearching = matchState === 'searching'
+
+  const toggleTopic = (topic: string) => {
+    setSelectedTopics(prev => 
+      prev.includes(topic) 
+        ? prev.filter(t => t !== topic) 
+        : [...prev, topic]
+    )
+  }
 
   return (
     <motion.div
@@ -97,53 +111,139 @@ export function HomeFocusCard({
       {/* Divider */}
       <div className="h-px bg-[#eef0f6] w-full" />
 
-      {/* Bottom section: Avatars & Queue status */}
-      <div className="flex items-center justify-between cursor-pointer group">
+      {/* Bottom section: Practice Setup Popup trigger */}
+      <div 
+        onClick={() => setShowModal(true)}
+        className="flex items-center justify-between cursor-pointer group"
+      >
         <div className="flex items-center gap-3">
-          {/* Overlapping Avatars - scaled 50% larger (42px) with adjusted overlap */}
-          <div className="flex -space-x-3.5">
-            <div 
-              className="w-[42px] h-[42px] rounded-full border-2 border-white flex items-center justify-center text-xs font-bold"
-              style={{
-                background: '#EEF2FF',
-                color: '#3B82F6'
-              }}
-            >
-              SD
-            </div>
-            <div 
-              className="w-[42px] h-[42px] rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white"
-              style={{
-                background: '#7C3AED'
-              }}
-            >
-              KD
-            </div>
+          <div 
+            className="w-[42px] h-[42px] rounded-xl flex items-center justify-center text-indigo-600 border border-indigo-100/50"
+            style={{
+              background: 'rgba(99, 102, 241, 0.08)',
+            }}
+          >
+            <Sliders size={18} strokeWidth={2} />
           </div>
           <div>
             <span 
-              className="font-semibold block leading-tight"
-              style={{
-                fontSize: '12px',
-                color: '#1A1533'
-              }}
+              className="font-bold block leading-tight text-xs text-[#1A1533]"
             >
-              1 friend
+              Practice Setup
             </span>
             <span 
-              className="font-medium block leading-tight mt-0.5"
-              style={{
-                fontSize: '12px',
-                color: '#4B5563' // High-contrast slate gray for status detail text
-              }}
+              className="font-medium block leading-tight mt-0.5 text-[11px] text-[#4B5563]"
             >
-              {isSearching ? 'in queue with you' : 'available to play'}
+              Select difficulty & topics
             </span>
           </div>
         </div>
         <ChevronRight size={16} strokeWidth={2} className="text-slate-400 group-hover:translate-x-0.5 transition-transform duration-200" />
       </div>
+
+      {/* Pop-up Window Modal */}
+      <AnimatePresence>
+        {showModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/25 backdrop-blur-sm p-4">
+            {/* Modal Overlay Close */}
+            <div className="absolute inset-0 cursor-default" onClick={() => setShowModal(false)} />
+
+            {/* Modal Box */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+              className="relative w-[360px] rounded-[28px] border border-white/60 bg-white/70 backdrop-blur-2xl p-5 shadow-2xl flex flex-col gap-4 text-slate-800 z-10"
+              style={{
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.15)'
+              }}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200/40">
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-tight text-slate-900">
+                    Practice Setup
+                  </h3>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">
+                    Customize Arena Parameters
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="p-1.5 rounded-lg border border-slate-200/50 bg-slate-100/50 hover:bg-slate-200/50 text-slate-600 transition-all duration-200 cursor-pointer active:scale-95"
+                >
+                  <X size={13} />
+                </button>
+              </div>
+
+              {/* Difficulty Level Section */}
+              <div className="space-y-2">
+                <span className="text-[10px] font-black uppercase text-indigo-500 tracking-wider block">
+                  Difficulty Level
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  {['Basic', 'Easy', 'Medium', 'Hard'].map((diff) => {
+                    const isSelected = selectedDifficulty === diff
+                    return (
+                      <button
+                        key={diff}
+                        type="button"
+                        onClick={() => setSelectedDifficulty(diff)}
+                        className={cn(
+                          "py-2 rounded-xl text-xs font-bold transition-all duration-150 border cursor-pointer active:scale-95",
+                          isSelected
+                            ? "bg-indigo-500 border-indigo-400 text-white shadow-sm"
+                            : "bg-white/50 hover:bg-white/80 border-slate-200/40 text-slate-700"
+                        )}
+                      >
+                        {diff}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Topics Section */}
+              <div className="space-y-2">
+                <span className="text-[10px] font-black uppercase text-indigo-500 tracking-wider block">
+                  Topics
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {['String', 'Array', 'LinkedList', 'Stack/Queue', 'Tree', 'DP', 'Hash Table'].map((topic) => {
+                    const isSelected = selectedTopics.includes(topic)
+                    return (
+                      <button
+                        key={topic}
+                        type="button"
+                        onClick={() => toggleTopic(topic)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-xl text-[10px] font-extrabold uppercase transition-all duration-150 border cursor-pointer flex items-center gap-1 active:scale-95",
+                          isSelected
+                            ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-600"
+                            : "bg-white/50 hover:bg-white/80 border-slate-200/40 text-slate-600"
+                        )}
+                      >
+                        {isSelected && <Check size={9} strokeWidth={3} />}
+                        {topic}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Confirm Button */}
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="w-full py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-black uppercase transition-all duration-150 cursor-pointer shadow-sm active:scale-95 text-center mt-2"
+              >
+                Confirm Setup
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
-
