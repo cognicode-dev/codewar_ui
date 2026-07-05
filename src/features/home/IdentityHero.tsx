@@ -17,7 +17,7 @@ export function IdentityHero({ identity = voidConfig, isActive = true }: Identit
   }) : []
 
   return (
-    <div className="absolute inset-0 select-none pointer-events-none overflow-hidden">
+    <div className="absolute inset-0 select-none pointer-events-none overflow-visible">
       {/* Background ambient lighting */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Glow 1 (Top Center Focus): Purple ambient light */}
