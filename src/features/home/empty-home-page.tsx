@@ -180,15 +180,7 @@ export function EmptyHomePage() {
                 setMatchState('searching')
               }}
             />
-            <HomeActionCard 
-              title="Practice Arena" 
-              subtitle="Hone your skills" 
-              type="practice" 
-              onClick={() => {
-                setSelectedMatchType('Practice Arena')
-                setMatchState('searching')
-              }}
-            />
+
             <HomeActionCard 
               title="Ranked Solo" 
               subtitle="Prove your limits" 
