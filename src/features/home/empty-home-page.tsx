@@ -12,7 +12,7 @@ import { LobbyCustomizerPanel } from '../settings/LobbyCustomizerPanel'
 import customEntityImg from '@/assets/images/screen/avatar/Entity.png'
 import customShadowImg from '@/assets/images/screen/avatar/Shadow.png'
 import customShadowBg from '@/assets/images/screen/background/shadow_bg.png'
-import customUniverseBg from '@/assets/images/screen/background/universe.png'
+import customHellBg from '@/assets/images/screen/background/Hell.png'
 
 // Import modular Arena UI components
 import { ArenaLayout } from '@/components/arena/ArenaLayout'
@@ -181,9 +181,9 @@ export function EmptyHomePage() {
       name: 'Shadow Realm',
       image: customShadowBg
     },
-    universe: {
-      name: 'Universe Nebula',
-      image: customUniverseBg
+    hell: {
+      name: 'Hell',
+      image: customHellBg
     }
   }
 
@@ -196,7 +196,7 @@ export function EmptyHomePage() {
   const backgroundOptions = [
     { id: 'purple', name: 'Purple Atmosphere', filterStyle: 'none', baseImage: voidConfig.background },
     { id: 'shadow', name: 'Shadow Realm', filterStyle: 'none', baseImage: customShadowBg },
-    { id: 'universe', name: 'Universe Nebula', filterStyle: 'none', baseImage: customUniverseBg }
+    { id: 'hell', name: 'Hell', filterStyle: 'none', baseImage: customHellBg }
   ]
 
   const isBright = themeMode === 'bright'
