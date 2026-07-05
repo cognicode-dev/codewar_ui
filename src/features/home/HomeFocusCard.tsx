@@ -129,7 +129,7 @@ export function HomeFocusCard({
             <span 
               className="font-bold block leading-tight text-xs text-[#1A1533]"
             >
-              Practice Setup
+              Options
             </span>
             <span 
               className="font-medium block leading-tight mt-0.5 text-[11px] text-[#4B5563]"
@@ -150,20 +150,21 @@ export function HomeFocusCard({
 
             {/* Modal Box */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-              className="relative w-[360px] rounded-[28px] border border-white/60 bg-white/70 backdrop-blur-2xl p-5 shadow-2xl flex flex-col gap-4 text-slate-800 z-10"
+              initial={{ opacity: 0, scale: 0.35, x: -120, y: 120 }}
+              animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+              exit={{ opacity: 0, scale: 0.35, x: -120, y: 120 }}
+              transition={{ type: 'spring', stiffness: 340, damping: 24 }}
               style={{
+                transformOrigin: 'bottom left',
                 boxShadow: '0 20px 50px rgba(0, 0, 0, 0.15)'
               }}
+              className="relative w-[360px] rounded-[28px] border border-white/60 bg-white/70 backdrop-blur-2xl p-5 shadow-2xl flex flex-col gap-4 text-slate-800 z-10"
             >
               {/* Header */}
               <div className="flex items-center justify-between pb-2 border-b border-slate-200/40">
                 <div>
                   <h3 className="text-sm font-black uppercase tracking-tight text-slate-900">
-                    Practice Setup
+                    Options
                   </h3>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">
                     Customize Arena Parameters
