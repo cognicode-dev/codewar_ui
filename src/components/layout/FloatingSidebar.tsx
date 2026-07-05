@@ -89,16 +89,16 @@ export function FloatingSidebar({
               {/* Layer 2 of Active Item: Floating Rounded Square */}
               <motion.button
                 onClick={() => {
-                  if (item.id === 'practice') return
+                  if (item.id === 'practice' || item.id === 'statistics') return
                   onChangeActiveId(item.id)
                 }}
                 style={{
-                  cursor: item.id === 'practice' ? 'not-allowed' : 'pointer'
+                  cursor: (item.id === 'practice' || item.id === 'statistics') ? 'not-allowed' : 'pointer'
                 }}
                 animate={{
-                  opacity: item.id === 'practice' ? 0.35 : defaultOpacity,
+                  opacity: (item.id === 'practice' || item.id === 'statistics') ? 0.35 : defaultOpacity,
                 }}
-                whileHover={item.id === 'practice' ? {} : {
+                whileHover={(item.id === 'practice' || item.id === 'statistics') ? {} : {
                   opacity: 1.0,
                   y: -1, // Symmetrical lift
                   scale: 1.02, // Symmetrical scale
