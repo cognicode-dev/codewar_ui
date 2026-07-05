@@ -39,9 +39,9 @@ export function HomeActionCard({ title, subtitle, type, onClick }: HomeActionCar
     <motion.button
       onClick={onClick}
       whileHover={{
-        y: -3,
-        scale: 1.012,
-        transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] }
+        y: -4,
+        scale: 1.015,
+        transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] }
       }}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}

@@ -22,7 +22,7 @@ export function CodeEditor({
 
   // Local state for immediate typing renders (averts full parent page re-renders)
   const [localValue, setLocalValue] = useState(value)
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+  const debounceTimer = useRef<any>(null)
 
   // Synchronize when the initial or reset value changes from the parent component
   useEffect(() => {

@@ -1,8 +1,10 @@
-import { useState } from 'react'
-import { motion } from 'motion/react'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { FloatingSidebar } from '@/components/layout'
 import { cn } from '@/utils'
 import { CheckCircle2, BookOpen } from 'lucide-react'
+import { MatchLoadingScreen } from './MatchLoadingScreen'
+import { LeaderboardScreen } from '../leaderboard/LeaderboardScreen'
 
 // Import modular Arena UI components
 import { ArenaLayout } from '@/components/arena/ArenaLayout'
@@ -83,7 +85,34 @@ export function EmptyHomePage() {
   const [theme, setTheme] = useState('Glass Dark')
   const [codeValue, setCodeValue] = useState(dummyCode)
 
-  const isBright = activeId === 'play' || inRoom
+  const [matchState, setMatchState] = useState<'idle' | 'searching' | 'loading'>('idle')
+  const [selectedMatchType, setSelectedMatchType] = useState('Ranked 2v2')
+  const [searchTimer, setSearchTimer] = useState(0)
+
+  useEffect(() => {
+    let interval: any = null
+    if (matchState === 'searching') {
+      setSearchTimer(0)
+      interval = setInterval(() => {
+        setSearchTimer((prev) => {
+          const next = prev + 1
+          if (next >= 3) {
+            clearInterval(interval)
+            setMatchState('loading')
+            return 3
+          }
+          return next
+        })
+      }, 1000)
+    } else {
+      setSearchTimer(0)
+    }
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [matchState])
+
+  const isBright = activeId === 'play' || activeId === 'ranked' || inRoom
 
   // Interactive Play Matchmaking Dashboard - Rebuilt with Bright Apple + Arc + Linear Design Language
   const renderPlayDashboard = () => {
@@ -98,32 +127,57 @@ export function EmptyHomePage() {
             {/* Main Top Content (Left Column + Center Column) */}
             <div className="flex-grow flex flex-col lg:flex-row items-stretch gap-8 overflow-visible min-h-0">
               {/* Left Column: Heading & Focus Card */}
-              <div className="w-full lg:w-[35%] min-w-[280px] max-w-[330px] shrink-0 flex flex-col justify-between py-2 gap-4 overflow-visible relative z-20">
+              <motion.div 
+                animate={matchState === 'loading' ? { x: -400, opacity: 0 } : { x: 0, opacity: 1 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full lg:w-[35%] min-w-[280px] max-w-[330px] shrink-0 flex flex-col justify-between py-2 gap-4 overflow-visible relative z-20"
+              >
                 <HomeHero />
-                <HomeFocusCard />
-              </div>
+                <HomeFocusCard 
+                  matchState={matchState}
+                  searchTimer={searchTimer}
+                  selectedMatchType={selectedMatchType}
+                  onCancel={() => setMatchState('idle')}
+                  onStartSearch={() => {
+                    setSelectedMatchType('Ranked 2v2')
+                    setMatchState('searching')
+                  }}
+                />
+              </motion.div>
 
-              {/* Center Column: Identity Hero */}
-              <div className="flex-1 min-h-0 flex items-center justify-center relative overflow-visible z-10">
+              {/* Center Column: Identity Hero (Avatar) */}
+              <motion.div 
+                animate={matchState === 'loading' ? { scale: 0.75, opacity: 0, y: 40 } : { scale: 1, opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="flex-1 min-h-0 flex items-center justify-center relative overflow-visible z-10"
+              >
                 <IdentityHero isActive={activeId === 'play'} />
-              </div>
+              </motion.div>
             </div>
 
             {/* Bottom Panel: Recent Activity */}
-            <div className="h-[110px] mt-4 shrink-0 overflow-visible relative z-20">
+            <motion.div 
+              animate={matchState === 'loading' ? { y: 200, opacity: 0 } : { y: 0, opacity: 1 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="h-[110px] mt-4 shrink-0 overflow-visible relative z-20"
+            >
               <HomeRecentActivity />
-            </div>
+            </motion.div>
           </div>
 
           {/* Right Column: Four Compact Action Cards stacked vertically */}
-          <div className="w-full lg:w-[300px] shrink-0 flex flex-col gap-[20px] justify-center py-2 overflow-visible relative z-20">
+          <motion.div 
+            animate={matchState === 'loading' ? { x: 400, opacity: 0 } : { x: 0, opacity: 1 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full lg:w-[300px] shrink-0 flex flex-col gap-[20px] justify-center py-2 overflow-visible relative z-20"
+          >
             <HomeActionCard 
               title="Ranked 2v2" 
               subtitle="Compete and climb" 
               type="ranked-2v2" 
               onClick={() => {
-                setInRoom(true)
-                setActiveId('arena')
+                setSelectedMatchType('Ranked 2v2')
+                setMatchState('searching')
               }}
             />
             <HomeActionCard 
@@ -131,8 +185,8 @@ export function EmptyHomePage() {
               subtitle="Hone your skills" 
               type="practice" 
               onClick={() => {
-                setInRoom(true)
-                setActiveId('arena')
+                setSelectedMatchType('Practice Arena')
+                setMatchState('searching')
               }}
             />
             <HomeActionCard 
@@ -140,8 +194,8 @@ export function EmptyHomePage() {
               subtitle="Prove your limits" 
               type="ranked-solo" 
               onClick={() => {
-                setInRoom(true)
-                setActiveId('arena')
+                setSelectedMatchType('Ranked Solo')
+                setMatchState('searching')
               }}
             />
             <HomeActionCard 
@@ -149,11 +203,11 @@ export function EmptyHomePage() {
               subtitle="Create or join a room" 
               type="custom" 
               onClick={() => {
-                setInRoom(true)
-                setActiveId('arena')
+                setSelectedMatchType('Custom Match')
+                setMatchState('searching')
               }}
             />
-          </div>
+          </motion.div>
         </div>
       </div>
     )
@@ -164,13 +218,17 @@ export function EmptyHomePage() {
     return (
       <div className="flex h-screen bg-transparent text-slate-655 overflow-hidden relative">
         {/* Left Sidebar Spacer: Unified and locked at 120px to keep dock position absolute-stable */}
-        <div className="w-[120px] flex-shrink-0 relative z-10">
+        <motion.div 
+          animate={matchState === 'loading' ? { x: -140, opacity: 0 } : { x: 0, opacity: 1 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="w-[120px] flex-shrink-0 relative z-10"
+        >
           <FloatingSidebar 
             activeId={activeId} 
             onChangeActiveId={setActiveId} 
             inRoom={inRoom}
           />
-        </div>
+        </motion.div>
         
         {/* Right content viewport container */}
         <div className="flex-1 flex overflow-visible relative z-10 bg-transparent min-w-0">
@@ -190,9 +248,13 @@ export function EmptyHomePage() {
             }}
           >
             {/* Top Bar - Spans full width at the top with matching layout padding alignment */}
-            <div className="pl-[40px] pr-[40px] w-full flex-shrink-0">
+            <motion.div 
+              animate={matchState === 'loading' ? { y: -80, opacity: 0 } : { y: 0, opacity: 1 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="pl-[40px] pr-[40px] w-full flex-shrink-0"
+            >
               <HomeTopBar />
-            </div>
+            </motion.div>
             
             {/* Dashboard Content Client Viewport */}
             <div className="flex-grow min-h-0 relative w-full h-full">
@@ -214,7 +276,11 @@ export function EmptyHomePage() {
               </div>
 
               {/* Other Dashboards Container */}
-              {activeId !== 'play' && (
+              {activeId === 'ranked' && (
+                <LeaderboardScreen isBright={isBright} />
+              )}
+
+              {activeId !== 'play' && activeId !== 'ranked' && (
                 <div className="flex-1 flex flex-col justify-center items-center p-8 select-none bg-transparent h-full">
                   <motion.div 
                     key={activeId}
@@ -343,6 +409,28 @@ export function EmptyHomePage() {
             />
           </div>
 
+          {/* Match Loading Screen */}
+          <AnimatePresence>
+            {matchState === 'loading' && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0 z-30 flex items-center justify-center bg-transparent"
+              >
+                <MatchLoadingScreen 
+                  isBright={isBright}
+                  matchType={selectedMatchType}
+                  onLoadingComplete={() => {
+                    setMatchState('idle')
+                    setInRoom(true)
+                    setActiveId('arena')
+                  }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     )
@@ -422,12 +510,12 @@ export function EmptyHomePage() {
         >
           {/* Layer 1: Base Scenery Image - Renders pre-blurred WebP inside room to eliminate GPU Gaussian blur convolution overhead */}
           <img
-            src={inRoom ? voidConfig.backgroundBlurred : voidConfig.background}
+            src={(inRoom || activeId === 'ranked') ? voidConfig.backgroundBlurred : voidConfig.background}
             alt="Environment Backdrop"
             className="absolute inset-0 w-full h-full object-cover"
             decoding="async"
             style={{
-              filter: inRoom 
+              filter: (inRoom || activeId === 'ranked')
                 ? 'brightness(1.04) contrast(0.95) saturate(1.08)' 
                 : 'brightness(1.02) contrast(0.95) saturate(1.08)'
             }}
@@ -502,6 +590,16 @@ export function EmptyHomePage() {
 
       {/* Main Page Layout Content */}
       <div className={cn("relative z-10 w-full h-full min-h-screen", isBright && "light-theme")}>
+        {activeId === 'ranked' && (
+          <div 
+            className="absolute inset-0 z-5 transition-all duration-500 ease-in-out pointer-events-none backdrop-blur-[35px]"
+            style={{
+              background: isBright 
+                ? 'rgba(247, 248, 252, 0.45)' 
+                : 'rgba(14, 17, 24, 0.5)'
+            }}
+          />
+        )}
         {renderMainContent()}
       </div>
     </div>

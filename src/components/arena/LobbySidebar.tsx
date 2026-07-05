@@ -9,6 +9,8 @@ interface LobbySidebarProps {
   activeCount?: number
   maxCount?: number
   isBright?: boolean
+  members?: any[]
+  activities?: any[]
 }
 
 // Complete rich esports mock activities

@@ -1,7 +1,29 @@
 import { motion } from 'motion/react'
 import { Swords, ChevronRight } from 'lucide-react'
 
-export function HomeFocusCard() {
+interface HomeFocusCardProps {
+  matchState?: 'idle' | 'searching' | 'loading'
+  searchTimer?: number
+  selectedMatchType?: string
+  onCancel?: () => void
+  onStartSearch?: () => void
+}
+
+export function HomeFocusCard({
+  matchState = 'idle',
+  searchTimer = 0,
+  selectedMatchType = 'Ranked 2v2',
+  onCancel,
+  onStartSearch
+}: HomeFocusCardProps) {
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0')
+    const s = (secs % 60).toString().padStart(2, '0')
+    return `${m}:${s}`
+  }
+
+  const isSearching = matchState === 'searching'
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -43,7 +65,7 @@ export function HomeFocusCard() {
                   color: '#1A1533'
                 }}
               >
-                Ranked 2v2
+                {isSearching ? selectedMatchType : 'No Active Queue'}
               </h3>
               <span 
                 className="font-medium flex items-center gap-1.5 leading-tight mt-1"
@@ -52,21 +74,23 @@ export function HomeFocusCard() {
                   color: '#4B5563' // High-contrast slate gray for status text
                 }}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse shrink-0" />
-                Searching...
+                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSearching ? 'bg-[#10B981] animate-pulse' : 'bg-slate-400'}`} />
+                {isSearching ? `Searching... ${formatTime(searchTimer)}` : 'Ready to Match'}
               </span>
             </div>
           </div>
-          {/* Cancel Matchmaking Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              // Mock cancel matchmaking queue action
-            }}
-            className="px-4 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 border border-rose-500/20 text-[11px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0 mt-[16px]"
-          >
-            Cancel
-          </button>
+          {/* Action Button */}
+          {isSearching && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                if (onCancel) onCancel()
+              }}
+              className="px-4 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 border border-rose-500/20 text-[11px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0 mt-[16px]"
+            >
+              Cancel
+            </button>
+          )}
         </div>
       </div>
 
@@ -113,7 +137,7 @@ export function HomeFocusCard() {
                 color: '#4B5563' // High-contrast slate gray for status detail text
               }}
             >
-              in queue
+              {isSearching ? 'in queue with you' : 'available to play'}
             </span>
           </div>
         </div>
@@ -122,3 +146,4 @@ export function HomeFocusCard() {
     </motion.div>
   )
 }
+
