@@ -71,7 +71,7 @@ export function FriendsPanel({ isOpen, onClose, isBright, onOpenChat, activeChat
       case 'queueing':
         return 'text-amber-500'
       case 'offline':
-        return 'text-slate-400'
+        return isBright ? 'text-slate-600' : 'text-slate-400'
     }
   }
 
@@ -113,7 +113,10 @@ export function FriendsPanel({ isOpen, onClose, isBright, onOpenChat, activeChat
                     <Star size={14} className="text-violet-500 animate-pulse" />
                     Friends
                   </h2>
-                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                  <span className={cn(
+                    "text-[10px] font-extrabold uppercase tracking-wider",
+                    isBright ? "text-slate-600" : "text-slate-400"
+                  )}>
                     {friendsList.filter(f => f.status !== 'offline').length} active online
                   </span>
                 </>
@@ -179,7 +182,10 @@ export function FriendsPanel({ isOpen, onClose, isBright, onOpenChat, activeChat
                           <span className={cn("font-bold text-xs block truncate", isBright ? "text-slate-800" : "text-white")}>
                             {req.name}
                           </span>
-                          <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider block mt-0.5">{req.score} ELO</span>
+                          <span className={cn(
+                            "text-[9px] font-extrabold uppercase tracking-wider block mt-0.5",
+                            isBright ? "text-slate-600" : "text-slate-400"
+                          )}>{req.score} ELO</span>
                         </div>
                       </div>
 

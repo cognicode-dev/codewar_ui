@@ -79,7 +79,10 @@ export function ChatPanel({ isOpen, friendName, onClose, isBright }: ChatPanelPr
                 )}>
                   Chat with {friendName}
                 </h3>
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">
+                <span className={cn(
+                  "text-[9px] font-extrabold uppercase tracking-wider block mt-0.5",
+                  isBright ? "text-slate-600" : "text-slate-400"
+                )}>
                   Direct Sandbox Connection
                 </span>
               </div>
@@ -119,7 +122,10 @@ export function ChatPanel({ isOpen, friendName, onClose, isBright }: ChatPanelPr
                   )}>
                     {msg.text}
                   </div>
-                  <span className="text-[8px] font-bold text-slate-400 uppercase mt-1 tracking-wider">
+                  <span className={cn(
+                    "text-[8px] font-extrabold uppercase mt-1 tracking-wider",
+                    isBright ? "text-slate-600/90" : "text-slate-400"
+                  )}>
                     {msg.time}
                   </span>
                 </div>
