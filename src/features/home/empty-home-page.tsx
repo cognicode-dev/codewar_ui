@@ -263,7 +263,7 @@ export function EmptyHomePage() {
         />
         
         {/* Right content viewport container */}
-        <div className="flex-1 flex overflow-visible relative z-10 bg-transparent min-w-0">
+        <div className="flex-1 flex overflow-hidden relative z-10 bg-transparent min-w-0">
           
           {/* View 1: Main Dashboards (Play & Other Tabs) */}
           <div 
@@ -470,7 +470,7 @@ export function EmptyHomePage() {
 
   return (
     <div className={cn(
-      "relative min-h-screen transition-colors duration-300",
+      "relative h-screen w-screen overflow-hidden transition-colors duration-300",
       isBright ? "bg-[#F7F8FC] text-[#1A1533]" : "bg-[#0E1118] text-[#1E1B4B]"
     )}>
       {/* Light Theme Background: permanently mounted, fades in/out dynamically */}
@@ -621,7 +621,7 @@ export function EmptyHomePage() {
       </div>
 
       {/* Main Page Layout Content */}
-      <div className={cn("relative z-10 w-full h-full min-h-screen", isBright && "light-theme")}>
+      <div className={cn("relative z-10 w-full h-full overflow-hidden", isBright && "light-theme")}>
         {activeId === 'ranked' && (
           <div 
             className="absolute inset-0 z-5 transition-all duration-500 ease-in-out pointer-events-none backdrop-blur-[35px]"
