@@ -6,6 +6,7 @@ import { CheckCircle2, BookOpen } from 'lucide-react'
 import { MatchLoadingScreen } from './MatchLoadingScreen'
 import { LeaderboardScreen } from '../leaderboard/LeaderboardScreen'
 import { FriendsPanel } from '../friends/FriendsPanel'
+import { ChatPanel } from '../friends/ChatPanel'
 
 // Import modular Arena UI components
 import { ArenaLayout } from '@/components/arena/ArenaLayout'
@@ -82,6 +83,7 @@ const dummyCode = `export function findDuplicate(nums: number[]): number {
 export function EmptyHomePage() {
   const [activeId, setActiveId] = useState('play')
   const [showFriendsPanel, setShowFriendsPanel] = useState(false)
+  const [activeChatFriend, setActiveChatFriend] = useState<string | null>(null)
   const [inRoom, setInRoom] = useState(false) // Starts outside room in the new Home Dashboard direction
   const [language, setLanguage] = useState('TypeScript')
   const [theme, setTheme] = useState('Glass Dark')
@@ -116,10 +118,17 @@ export function EmptyHomePage() {
 
   const handleTabChange = (id: string) => {
     if (id === 'friends') {
-      setShowFriendsPanel(prev => !prev)
+      setShowFriendsPanel(prev => {
+        const next = !prev
+        if (!next) {
+          setActiveChatFriend(null)
+        }
+        return next
+      })
     } else {
       setActiveId(id)
       setShowFriendsPanel(false)
+      setActiveChatFriend(null)
     }
   }
 
@@ -236,7 +245,20 @@ export function EmptyHomePage() {
         {/* Friends side panel drawer */}
         <FriendsPanel 
           isOpen={showFriendsPanel}
-          onClose={() => setShowFriendsPanel(false)}
+          onClose={() => {
+            setShowFriendsPanel(false)
+            setActiveChatFriend(null)
+          }}
+          isBright={isBright}
+          onOpenChat={(friendName) => setActiveChatFriend(prev => prev === friendName ? null : friendName)}
+          activeChatFriend={activeChatFriend}
+        />
+
+        {/* Chat side panel drawer */}
+        <ChatPanel
+          isOpen={!!activeChatFriend && showFriendsPanel}
+          friendName={activeChatFriend || ''}
+          onClose={() => setActiveChatFriend(null)}
           isBright={isBright}
         />
         
