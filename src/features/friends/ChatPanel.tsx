@@ -55,10 +55,11 @@ export function ChatPanel({ isOpen, friendName, onClose, isBright }: ChatPanelPr
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={{ opacity: 0, x: -40, scale: 0.98 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          exit={{ opacity: 0, x: -40, scale: 0.98 }}
-          transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+          initial={{ opacity: 0, scale: 0.35, x: -30, y: 0 }}
+          animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+          exit={{ opacity: 0, scale: 0.35, x: -30, y: 0 }}
+          transition={{ type: 'spring', stiffness: 340, damping: 24 }}
+          style={{ transformOrigin: 'left center' }}
           className={cn(
             "absolute top-4 bottom-4 left-[416px] w-[300px] rounded-[24px] border backdrop-blur-2xl z-40 flex flex-col p-4.5 overflow-hidden",
             isBright
