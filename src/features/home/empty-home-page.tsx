@@ -5,6 +5,7 @@ import { cn } from '@/utils'
 import { CheckCircle2, BookOpen } from 'lucide-react'
 import { MatchLoadingScreen } from './MatchLoadingScreen'
 import { LeaderboardScreen } from '../leaderboard/LeaderboardScreen'
+import { FriendsPanel } from '../friends/FriendsPanel'
 
 // Import modular Arena UI components
 import { ArenaLayout } from '@/components/arena/ArenaLayout'
@@ -80,6 +81,7 @@ const dummyCode = `export function findDuplicate(nums: number[]): number {
 
 export function EmptyHomePage() {
   const [activeId, setActiveId] = useState('play')
+  const [showFriendsPanel, setShowFriendsPanel] = useState(false)
   const [inRoom, setInRoom] = useState(false) // Starts outside room in the new Home Dashboard direction
   const [language, setLanguage] = useState('TypeScript')
   const [theme, setTheme] = useState('Glass Dark')
@@ -111,6 +113,15 @@ export function EmptyHomePage() {
       if (interval) clearInterval(interval)
     }
   }, [matchState])
+
+  const handleTabChange = (id: string) => {
+    if (id === 'friends') {
+      setShowFriendsPanel(prev => !prev)
+    } else {
+      setActiveId(id)
+      setShowFriendsPanel(false)
+    }
+  }
 
   const isBright = activeId === 'play' || activeId === 'ranked' || inRoom
 
@@ -216,11 +227,18 @@ export function EmptyHomePage() {
           className="w-[120px] flex-shrink-0 relative z-10"
         >
           <FloatingSidebar 
-            activeId={activeId} 
-            onChangeActiveId={setActiveId} 
+            activeId={showFriendsPanel ? 'friends' : activeId} 
+            onChangeActiveId={handleTabChange} 
             inRoom={inRoom}
           />
         </motion.div>
+
+        {/* Friends side panel drawer */}
+        <FriendsPanel 
+          isOpen={showFriendsPanel}
+          onClose={() => setShowFriendsPanel(false)}
+          isBright={isBright}
+        />
         
         {/* Right content viewport container */}
         <div className="flex-1 flex overflow-visible relative z-10 bg-transparent min-w-0">
