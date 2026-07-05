@@ -10,6 +10,7 @@ interface IdentityHeroProps {
     dropShadowColor: string
     filterStyle: string
     image?: string
+    yOffset?: number
   }
 }
 
@@ -19,7 +20,8 @@ export function IdentityHero({ identity = voidConfig, isActive = true, avatarCon
     glowColor: identity.glowColor,
     dropShadowColor: 'rgba(124, 58, 237, 0.35)',
     filterStyle: 'none',
-    image: identity.avatar
+    image: identity.avatar,
+    yOffset: -50
   }
 
   // Generate 25 tiny, subtle floating dust particles
@@ -109,7 +111,7 @@ export function IdentityHero({ identity = voidConfig, isActive = true, avatarCon
       {/* Layer 3: Character Avatar - z-20, floats weightlessly, shifted left for layout alignment */}
       <div 
         className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none overflow-visible"
-        style={{ transform: 'translateX(-50px) translateY(-50px)' }} // Shifted left and upward by 50px
+        style={{ transform: `translateX(-50px) translateY(${activeConfig.yOffset ?? -50}px)` }} // Shifted left and upward dynamically
       >
         <motion.div
           animate={isActive ? { y: [-6, 6] } : { y: 0 }}
@@ -124,11 +126,11 @@ export function IdentityHero({ identity = voidConfig, isActive = true, avatarCon
           <img
             src={activeConfig.image || identity.avatar}
             alt={`${activeConfig.name} Avatar`}
-            className="h-[82%] object-contain overflow-visible opacity-100" // Fully opaque character stays solid
+            className="h-[82%] object-contain overflow-visible opacity-100" // Original styling
             decoding="async"
             style={{
-              filter: `drop-shadow(0 0 35px ${activeConfig.dropShadowColor}) drop-shadow(0 0 75px rgba(124, 58, 237, 0.15)) ${activeConfig.filterStyle}`, // Crisp rim light bloom and theme shift
-              transform: 'scale(1.5)' // Scaled UP by 50% on img tag to prevent Framer Motion translate overrides
+              filter: `drop-shadow(0 0 35px ${activeConfig.dropShadowColor}) drop-shadow(0 0 75px rgba(124, 58, 237, 0.15)) ${activeConfig.filterStyle}`, // Crisp rim light bloom
+              transform: 'scale(1.5)' // Original scale
             }}
           />
         </motion.div>

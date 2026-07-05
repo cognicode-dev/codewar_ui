@@ -11,6 +11,8 @@ import { SettingsPanel } from '../settings/SettingsPanel'
 import { LobbyCustomizerPanel } from '../settings/LobbyCustomizerPanel'
 import customEntityImg from '@/assets/images/screen/avatar/Entity.png'
 import customShadowImg from '@/assets/images/screen/avatar/Shadow.png'
+import customShadowBg from '@/assets/images/screen/background/shadow_bg.png'
+import customUniverseBg from '@/assets/images/screen/background/universe.png'
 
 // Import modular Arena UI components
 import { ArenaLayout } from '@/components/arena/ArenaLayout'
@@ -152,68 +154,58 @@ export function EmptyHomePage() {
     )
   }
 
-  const avatarConfigs: Record<string, { name: string; glowColor: string; dropShadowColor: string; filterStyle: string; image: string }> = {
+  const avatarConfigs: Record<string, { name: string; glowColor: string; dropShadowColor: string; filterStyle: string; image: string; yOffset: number }> = {
     dread: {
       name: 'Dread Knight',
       glowColor: 'rgba(124, 58, 237, 0.18)',
       dropShadowColor: 'rgba(124, 58, 237, 0.35)',
       filterStyle: 'none',
-      image: voidConfig.avatar
+      image: voidConfig.avatar,
+      yOffset: -50
     },
-    techno: {
-      name: 'Techno Mage',
+    entity: {
+      name: 'Entity',
       glowColor: 'rgba(6, 182, 212, 0.18)',
       dropShadowColor: 'rgba(6, 182, 212, 0.35)',
       filterStyle: 'none',
-      image: customEntityImg
+      image: customEntityImg,
+      yOffset: 35
     },
-    solar: {
-      name: 'Solar Sentinel',
-      glowColor: 'rgba(245, 158, 11, 0.18)',
-      dropShadowColor: 'rgba(245, 158, 11, 0.35)',
+    shadow: {
+      name: 'Shadow',
+      glowColor: 'rgba(147, 51, 234, 0.18)',
+      dropShadowColor: 'rgba(147, 51, 234, 0.35)',
       filterStyle: 'none',
-      image: customShadowImg
-    },
-    cyber: {
-      name: 'Cyber Assassin',
-      glowColor: 'rgba(239, 68, 68, 0.18)',
-      dropShadowColor: 'rgba(239, 68, 68, 0.35)',
-      filterStyle: 'hue-rotate(60deg) saturate(150%)',
-      image: voidConfig.avatar
+      image: customShadowImg,
+      yOffset: 25
     }
   }
 
-  const backgroundConfigs: Record<string, { name: string; filterStyle: string }> = {
+  const backgroundConfigs: Record<string, { name: string; image: string }> = {
     purple: {
       name: 'Purple Atmosphere',
-      filterStyle: 'brightness(1.02) contrast(0.95) saturate(1.08)'
+      image: voidConfig.background
     },
-    gold: {
-      name: 'Solaris Dust',
-      filterStyle: 'brightness(1.05) contrast(0.9) saturate(1.3) hue-rotate(120deg)'
+    shadow: {
+      name: 'Shadow Realm',
+      image: customShadowBg
     },
-    grid: {
-      name: 'Void Grid',
-      filterStyle: 'brightness(0.9) contrast(1.1) saturate(0)'
-    },
-    aurora: {
-      name: 'Aurora Sky',
-      filterStyle: 'brightness(1.02) contrast(1.0) saturate(1.4) hue-rotate(190deg)'
+    universe: {
+      name: 'Universe Nebula',
+      image: customUniverseBg
     }
   }
 
   const avatarOptions = [
     { id: 'dread', name: 'Dread Knight', glowColor: 'rgba(124, 58, 237, 0.18)', filterStyle: 'none', image: voidConfig.avatar },
-    { id: 'techno', name: 'Techno Mage', glowColor: 'rgba(6, 182, 212, 0.18)', filterStyle: 'none', image: customEntityImg },
-    { id: 'solar', name: 'Solar Sentinel', glowColor: 'rgba(245, 158, 11, 0.18)', filterStyle: 'none', image: customShadowImg },
-    { id: 'cyber', name: 'Cyber Assassin', glowColor: 'rgba(239, 68, 68, 0.18)', filterStyle: 'hue-rotate(60deg) saturate(150%)', image: voidConfig.avatar }
+    { id: 'entity', name: 'Entity', glowColor: 'rgba(6, 182, 212, 0.18)', filterStyle: 'none', image: customEntityImg },
+    { id: 'shadow', name: 'Shadow', glowColor: 'rgba(147, 51, 234, 0.18)', filterStyle: 'none', image: customShadowImg }
   ]
 
   const backgroundOptions = [
-    { id: 'purple', name: 'Purple Atmosphere', filterStyle: 'brightness(1.02) contrast(0.95) saturate(1.08)', baseImage: voidConfig.background },
-    { id: 'gold', name: 'Solaris Dust', filterStyle: 'brightness(1.05) contrast(0.9) saturate(1.3) hue-rotate(120deg)', baseImage: voidConfig.background },
-    { id: 'grid', name: 'Void Grid', filterStyle: 'brightness(0.9) contrast(1.1) saturate(0)', baseImage: voidConfig.background },
-    { id: 'aurora', name: 'Aurora Sky', filterStyle: 'brightness(1.02) contrast(1.0) saturate(1.4) hue-rotate(190deg)', baseImage: voidConfig.background }
+    { id: 'purple', name: 'Purple Atmosphere', filterStyle: 'none', baseImage: voidConfig.background },
+    { id: 'shadow', name: 'Shadow Realm', filterStyle: 'none', baseImage: customShadowBg },
+    { id: 'universe', name: 'Universe Nebula', filterStyle: 'none', baseImage: customUniverseBg }
   ]
 
   const isBright = themeMode === 'bright'
@@ -655,12 +647,14 @@ export function EmptyHomePage() {
         >
           {/* Layer 1: Base Scenery Image - Renders pre-blurred WebP inside room to eliminate GPU Gaussian blur convolution overhead */}
           <img
-            src={(inRoom || activeId === 'ranked') ? voidConfig.backgroundBlurred : voidConfig.background}
+            src={(inRoom || activeId === 'ranked') && customBackground === 'purple' 
+              ? voidConfig.backgroundBlurred 
+              : backgroundConfigs[customBackground].image}
             alt="Environment Backdrop"
             className="absolute inset-0 w-full h-full object-cover"
             decoding="async"
             style={{
-              filter: `${(inRoom || activeId === 'ranked') ? 'blur(10px) ' : ''}${backgroundConfigs[customBackground].filterStyle}`
+              filter: (inRoom || activeId === 'ranked') ? 'blur(15px) brightness(0.85) contrast(0.95)' : 'none'
             }}
           />
 
