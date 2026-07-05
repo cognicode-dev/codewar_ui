@@ -9,6 +9,7 @@ interface IdentityHeroProps {
     glowColor: string
     dropShadowColor: string
     filterStyle: string
+    image?: string
   }
 }
 
@@ -17,7 +18,8 @@ export function IdentityHero({ identity = voidConfig, isActive = true, avatarCon
     name: identity.name,
     glowColor: identity.glowColor,
     dropShadowColor: 'rgba(124, 58, 237, 0.35)',
-    filterStyle: 'none'
+    filterStyle: 'none',
+    image: identity.avatar
   }
 
   // Generate 25 tiny, subtle floating dust particles
@@ -120,7 +122,7 @@ export function IdentityHero({ identity = voidConfig, isActive = true, avatarCon
           className="w-full h-full flex items-center justify-center overflow-visible"
         >
           <img
-            src={identity.avatar}
+            src={activeConfig.image || identity.avatar}
             alt={`${activeConfig.name} Avatar`}
             className="h-[82%] object-contain overflow-visible opacity-100" // Fully opaque character stays solid
             decoding="async"

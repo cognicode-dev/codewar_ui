@@ -9,6 +9,8 @@ import { FriendsPanel } from '../friends/FriendsPanel'
 import { ChatPanel } from '../friends/ChatPanel'
 import { SettingsPanel } from '../settings/SettingsPanel'
 import { LobbyCustomizerPanel } from '../settings/LobbyCustomizerPanel'
+import customEntityImg from '@/assets/images/screen/avatar/Entity.png'
+import customShadowImg from '@/assets/images/screen/avatar/Shadow.png'
 
 // Import modular Arena UI components
 import { ArenaLayout } from '@/components/arena/ArenaLayout'
@@ -150,30 +152,34 @@ export function EmptyHomePage() {
     )
   }
 
-  const avatarConfigs: Record<string, { name: string; glowColor: string; dropShadowColor: string; filterStyle: string }> = {
+  const avatarConfigs: Record<string, { name: string; glowColor: string; dropShadowColor: string; filterStyle: string; image: string }> = {
     dread: {
       name: 'Dread Knight',
       glowColor: 'rgba(124, 58, 237, 0.18)',
       dropShadowColor: 'rgba(124, 58, 237, 0.35)',
-      filterStyle: 'none'
+      filterStyle: 'none',
+      image: voidConfig.avatar
     },
     techno: {
       name: 'Techno Mage',
       glowColor: 'rgba(6, 182, 212, 0.18)',
       dropShadowColor: 'rgba(6, 182, 212, 0.35)',
-      filterStyle: 'hue-rotate(240deg) saturate(150%)'
+      filterStyle: 'none',
+      image: customEntityImg
     },
     solar: {
       name: 'Solar Sentinel',
       glowColor: 'rgba(245, 158, 11, 0.18)',
       dropShadowColor: 'rgba(245, 158, 11, 0.35)',
-      filterStyle: 'hue-rotate(120deg) saturate(200%) brightness(1.1)'
+      filterStyle: 'none',
+      image: customShadowImg
     },
     cyber: {
       name: 'Cyber Assassin',
       glowColor: 'rgba(239, 68, 68, 0.18)',
       dropShadowColor: 'rgba(239, 68, 68, 0.35)',
-      filterStyle: 'hue-rotate(60deg) saturate(150%)'
+      filterStyle: 'hue-rotate(60deg) saturate(150%)',
+      image: voidConfig.avatar
     }
   }
 
@@ -197,17 +203,17 @@ export function EmptyHomePage() {
   }
 
   const avatarOptions = [
-    { id: 'dread', name: 'Dread Knight', color: 'bg-violet-500' },
-    { id: 'techno', name: 'Techno Mage', color: 'bg-cyan-500' },
-    { id: 'solar', name: 'Solar Sentinel', color: 'bg-amber-500' },
-    { id: 'cyber', name: 'Cyber Assassin', color: 'bg-rose-500' }
+    { id: 'dread', name: 'Dread Knight', glowColor: 'rgba(124, 58, 237, 0.18)', filterStyle: 'none', image: voidConfig.avatar },
+    { id: 'techno', name: 'Techno Mage', glowColor: 'rgba(6, 182, 212, 0.18)', filterStyle: 'none', image: customEntityImg },
+    { id: 'solar', name: 'Solar Sentinel', glowColor: 'rgba(245, 158, 11, 0.18)', filterStyle: 'none', image: customShadowImg },
+    { id: 'cyber', name: 'Cyber Assassin', glowColor: 'rgba(239, 68, 68, 0.18)', filterStyle: 'hue-rotate(60deg) saturate(150%)', image: voidConfig.avatar }
   ]
 
   const backgroundOptions = [
-    { id: 'purple', name: 'Purple Atmosphere', color: 'bg-violet-500' },
-    { id: 'gold', name: 'Solaris Dust', color: 'bg-amber-500' },
-    { id: 'grid', name: 'Void Grid', color: 'bg-slate-500' },
-    { id: 'aurora', name: 'Aurora Sky', color: 'bg-emerald-500' }
+    { id: 'purple', name: 'Purple Atmosphere', filterStyle: 'brightness(1.02) contrast(0.95) saturate(1.08)', baseImage: voidConfig.background },
+    { id: 'gold', name: 'Solaris Dust', filterStyle: 'brightness(1.05) contrast(0.9) saturate(1.3) hue-rotate(120deg)', baseImage: voidConfig.background },
+    { id: 'grid', name: 'Void Grid', filterStyle: 'brightness(0.9) contrast(1.1) saturate(0)', baseImage: voidConfig.background },
+    { id: 'aurora', name: 'Aurora Sky', filterStyle: 'brightness(1.02) contrast(1.0) saturate(1.4) hue-rotate(190deg)', baseImage: voidConfig.background }
   ]
 
   const isBright = themeMode === 'bright'
@@ -267,64 +273,40 @@ export function EmptyHomePage() {
             </motion.div>
           </div>
 
-          {/* Right Column: Dynamic Action Cards / Customizer Switch */}
+          {/* Right Column: Action Cards stacked vertically */}
           <motion.div 
-            animate={(matchState === 'loading') ? { x: 400, opacity: 0 } : { x: 0, opacity: 1 }}
+            animate={(matchState === 'loading' || showLobbySettings) ? { x: 400, opacity: 0 } : { x: 0, opacity: 1 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full lg:w-[300px] shrink-0 flex flex-col justify-center py-2 overflow-visible relative z-20"
+            className="w-full lg:w-[300px] shrink-0 flex flex-col gap-[20px] justify-center py-2 overflow-visible relative z-20"
           >
-            <AnimatePresence mode="wait">
-              {!showLobbySettings ? (
-                <motion.div
-                  key="play-modes"
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 50 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex flex-col gap-[20px]"
-                >
-                  <HomeActionCard 
-                    title="Ranked 2v2" 
-                    subtitle="Compete and climb" 
-                    type="ranked-2v2" 
-                    onClick={() => {
-                      setSelectedMatchType('Ranked 2v2')
-                      setMatchState('searching')
-                    }}
-                  />
-                  <HomeActionCard 
-                    title="Ranked Solo" 
-                    subtitle="Prove your limits" 
-                    type="ranked-solo" 
-                    onClick={() => {
-                      setSelectedMatchType('Ranked Solo')
-                      setMatchState('searching')
-                    }}
-                  />
-                  <HomeActionCard 
-                    title="Custom Match" 
-                    subtitle="Create or join a room" 
-                    type="custom" 
-                    onClick={() => {
-                      setSelectedMatchType('Custom Match')
-                      setMatchState('searching')
-                    }}
-                  />
-                </motion.div>
-              ) : (
-                <LobbyCustomizerPanel
-                  key="customizer"
-                  isBright={isBright}
-                  onBack={() => setShowLobbySettings(false)}
-                  currentAvatar={customAvatar}
-                  onChangeAvatar={setCustomAvatar}
-                  currentBackground={customBackground}
-                  onChangeBackground={setCustomBackground}
-                  avatarOptions={avatarOptions}
-                  backgroundOptions={backgroundOptions}
-                />
-              )}
-            </AnimatePresence>
+            <HomeActionCard 
+              title="Ranked 2v2" 
+              subtitle="Compete and climb" 
+              type="ranked-2v2" 
+              onClick={() => {
+                setSelectedMatchType('Ranked 2v2')
+                setMatchState('searching')
+              }}
+            />
+
+            <HomeActionCard 
+              title="Ranked Solo" 
+              subtitle="Prove your limits" 
+              type="ranked-solo" 
+              onClick={() => {
+                setSelectedMatchType('Ranked Solo')
+                setMatchState('searching')
+              }}
+            />
+            <HomeActionCard 
+              title="Custom Match" 
+              subtitle="Create or join a room" 
+              type="custom" 
+              onClick={() => {
+                setSelectedMatchType('Custom Match')
+                setMatchState('searching')
+              }}
+            />
           </motion.div>
         </div>
       </div>
@@ -378,6 +360,19 @@ export function EmptyHomePage() {
           onToggleTheme={() => setThemeMode(prev => prev === 'bright' ? 'dark' : 'bright')}
           onLobbySettingsClick={() => setShowLobbySettings(true)}
           activeAvatarName={avatarConfigs[customAvatar].name}
+        />
+        
+        {/* Lobby customizer drawer */}
+        <LobbyCustomizerPanel
+          isOpen={showLobbySettings}
+          onClose={() => setShowLobbySettings(false)}
+          isBright={isBright}
+          currentAvatar={customAvatar}
+          onChangeAvatar={setCustomAvatar}
+          currentBackground={customBackground}
+          onChangeBackground={setCustomBackground}
+          avatarOptions={avatarOptions}
+          backgroundOptions={backgroundOptions}
         />
         
         {/* Right content viewport container */}
