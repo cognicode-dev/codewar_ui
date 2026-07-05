@@ -154,30 +154,21 @@ export function EmptyHomePage() {
     )
   }
 
-  const avatarConfigs: Record<string, { name: string; glowColor: string; dropShadowColor: string; filterStyle: string; image: string; yOffset: number }> = {
+  const avatarConfigs: Record<string, { name: string; glowColor: string; image: string }> = {
     dread: {
       name: 'Dread Knight',
       glowColor: 'rgba(124, 58, 237, 0.18)',
-      dropShadowColor: 'rgba(124, 58, 237, 0.35)',
-      filterStyle: 'none',
-      image: voidConfig.avatar,
-      yOffset: -50
+      image: voidConfig.avatar
     },
     entity: {
       name: 'Entity',
       glowColor: 'rgba(6, 182, 212, 0.18)',
-      dropShadowColor: 'rgba(6, 182, 212, 0.35)',
-      filterStyle: 'none',
-      image: customEntityImg,
-      yOffset: 35
+      image: customEntityImg
     },
     shadow: {
       name: 'Shadow',
       glowColor: 'rgba(147, 51, 234, 0.18)',
-      dropShadowColor: 'rgba(147, 51, 234, 0.35)',
-      filterStyle: 'none',
-      image: customShadowImg,
-      yOffset: 25
+      image: customShadowImg
     }
   }
 
@@ -250,7 +241,11 @@ export function EmptyHomePage() {
               >
                 <IdentityHero 
                   isActive={activeId === 'play'} 
-                  avatarConfig={avatarConfigs[customAvatar]}
+                  identity={{
+                    ...voidConfig,
+                    avatar: avatarConfigs[customAvatar].image,
+                    glowColor: avatarConfigs[customAvatar].glowColor
+                  }}
                 />
               </motion.div>
             </div>
