@@ -4,9 +4,22 @@ import { config as voidConfig } from '@/assets/identities/void/config'
 interface IdentityHeroProps {
   identity?: typeof voidConfig
   isActive?: boolean
+  avatarConfig?: {
+    name: string
+    glowColor: string
+    dropShadowColor: string
+    filterStyle: string
+  }
 }
 
-export function IdentityHero({ identity = voidConfig, isActive = true }: IdentityHeroProps) {
+export function IdentityHero({ identity = voidConfig, isActive = true, avatarConfig }: IdentityHeroProps) {
+  const activeConfig = avatarConfig || {
+    name: identity.name,
+    glowColor: identity.glowColor,
+    dropShadowColor: 'rgba(124, 58, 237, 0.35)',
+    filterStyle: 'none'
+  }
+
   // Generate 25 tiny, subtle floating dust particles
   const particles = isActive ? Array.from({ length: 25 }).map((_, i) => {
     const top = `${(i * 37 + 13) % 90}%`
@@ -54,7 +67,7 @@ export function IdentityHero({ identity = voidConfig, isActive = true }: Identit
           top: '-15%',
           left: '50%',
           transform: 'translateX(-50%)',
-          background: `radial-gradient(circle, ${identity.glowColor} 0%, rgba(124, 58, 237, 0.05) 50%, transparent 80%)`,
+          background: `radial-gradient(circle, ${activeConfig.glowColor} 0%, rgba(124, 58, 237, 0.05) 50%, transparent 80%)`,
           filter: 'blur(180px)',
           opacity: 0.5
         }}
@@ -69,7 +82,7 @@ export function IdentityHero({ identity = voidConfig, isActive = true }: Identit
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%) translateX(-24px) translateY(-40px)', // Aligned horizontally to root scenery offset
-          background: `radial-gradient(circle, ${identity.glowColor} 0%, rgba(124, 58, 237, 0.04) 60%, transparent 90%)`,
+          background: `radial-gradient(circle, ${activeConfig.glowColor} 0%, rgba(124, 58, 237, 0.04) 60%, transparent 90%)`,
           filter: 'blur(180px)',
           opacity: 0.08
         }}
@@ -108,11 +121,11 @@ export function IdentityHero({ identity = voidConfig, isActive = true }: Identit
         >
           <img
             src={identity.avatar}
-            alt={`${identity.name} Avatar`}
+            alt={`${activeConfig.name} Avatar`}
             className="h-[82%] object-contain overflow-visible opacity-100" // Fully opaque character stays solid
             decoding="async"
             style={{
-              filter: 'drop-shadow(0 0 35px rgba(124, 58, 237, 0.35)) drop-shadow(0 0 75px rgba(124, 58, 237, 0.15))', // Crisp rim light bloom
+              filter: `drop-shadow(0 0 35px ${activeConfig.dropShadowColor}) drop-shadow(0 0 75px rgba(124, 58, 237, 0.15)) ${activeConfig.filterStyle}`, // Crisp rim light bloom and theme shift
               transform: 'scale(1.5)' // Scaled UP by 50% on img tag to prevent Framer Motion translate overrides
             }}
           />
@@ -128,7 +141,7 @@ export function IdentityHero({ identity = voidConfig, isActive = true }: Identit
           transform: 'translateX(-50%) translateX(-50px)', // Centered on the character
           width: '450px',
           height: '120px',
-          background: 'radial-gradient(ellipse at center, rgba(124, 58, 237, 0.28) 0%, rgba(124, 58, 237, 0.06) 50%, transparent 80%)',
+          background: `radial-gradient(ellipse at center, ${activeConfig.glowColor.replace('0.18', '0.28')} 0%, ${activeConfig.glowColor.replace('0.18', '0.06')} 50%, transparent 80%)`,
           filter: 'blur(35px)',
         }}
       />

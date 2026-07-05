@@ -7,6 +7,8 @@ import { MatchLoadingScreen } from './MatchLoadingScreen'
 import { LeaderboardScreen } from '../leaderboard/LeaderboardScreen'
 import { FriendsPanel } from '../friends/FriendsPanel'
 import { ChatPanel } from '../friends/ChatPanel'
+import { SettingsPanel } from '../settings/SettingsPanel'
+import { LobbyCustomizerPanel } from '../settings/LobbyCustomizerPanel'
 
 // Import modular Arena UI components
 import { ArenaLayout } from '@/components/arena/ArenaLayout'
@@ -87,6 +89,11 @@ export function EmptyHomePage() {
   const [showOptionsModal, setShowOptionsModal] = useState(false)
   const [selectedDifficulty, setSelectedDifficulty] = useState('Easy')
   const [selectedTopics, setSelectedTopics] = useState<string[]>(['Array'])
+  const [showSettingsPanel, setShowSettingsPanel] = useState(false)
+  const [themeMode, setThemeMode] = useState<'bright' | 'dark'>('bright')
+  const [customAvatar, setCustomAvatar] = useState('dread')
+  const [customBackground, setCustomBackground] = useState('purple')
+  const [showLobbySettings, setShowLobbySettings] = useState(false)
   const [inRoom, setInRoom] = useState(false) // Starts outside room in the new Home Dashboard direction
   const [language, setLanguage] = useState('TypeScript')
   const [theme, setTheme] = useState('Glass Dark')
@@ -143,7 +150,67 @@ export function EmptyHomePage() {
     )
   }
 
-  const isBright = activeId === 'play' || activeId === 'ranked' || inRoom
+  const avatarConfigs: Record<string, { name: string; glowColor: string; dropShadowColor: string; filterStyle: string }> = {
+    dread: {
+      name: 'Dread Knight',
+      glowColor: 'rgba(124, 58, 237, 0.18)',
+      dropShadowColor: 'rgba(124, 58, 237, 0.35)',
+      filterStyle: 'none'
+    },
+    techno: {
+      name: 'Techno Mage',
+      glowColor: 'rgba(6, 182, 212, 0.18)',
+      dropShadowColor: 'rgba(6, 182, 212, 0.35)',
+      filterStyle: 'hue-rotate(240deg) saturate(150%)'
+    },
+    solar: {
+      name: 'Solar Sentinel',
+      glowColor: 'rgba(245, 158, 11, 0.18)',
+      dropShadowColor: 'rgba(245, 158, 11, 0.35)',
+      filterStyle: 'hue-rotate(120deg) saturate(200%) brightness(1.1)'
+    },
+    cyber: {
+      name: 'Cyber Assassin',
+      glowColor: 'rgba(239, 68, 68, 0.18)',
+      dropShadowColor: 'rgba(239, 68, 68, 0.35)',
+      filterStyle: 'hue-rotate(60deg) saturate(150%)'
+    }
+  }
+
+  const backgroundConfigs: Record<string, { name: string; filterStyle: string }> = {
+    purple: {
+      name: 'Purple Atmosphere',
+      filterStyle: 'brightness(1.02) contrast(0.95) saturate(1.08)'
+    },
+    gold: {
+      name: 'Solaris Dust',
+      filterStyle: 'brightness(1.05) contrast(0.9) saturate(1.3) hue-rotate(120deg)'
+    },
+    grid: {
+      name: 'Void Grid',
+      filterStyle: 'brightness(0.9) contrast(1.1) saturate(0)'
+    },
+    aurora: {
+      name: 'Aurora Sky',
+      filterStyle: 'brightness(1.02) contrast(1.0) saturate(1.4) hue-rotate(190deg)'
+    }
+  }
+
+  const avatarOptions = [
+    { id: 'dread', name: 'Dread Knight', color: 'bg-violet-500' },
+    { id: 'techno', name: 'Techno Mage', color: 'bg-cyan-500' },
+    { id: 'solar', name: 'Solar Sentinel', color: 'bg-amber-500' },
+    { id: 'cyber', name: 'Cyber Assassin', color: 'bg-rose-500' }
+  ]
+
+  const backgroundOptions = [
+    { id: 'purple', name: 'Purple Atmosphere', color: 'bg-violet-500' },
+    { id: 'gold', name: 'Solaris Dust', color: 'bg-amber-500' },
+    { id: 'grid', name: 'Void Grid', color: 'bg-slate-500' },
+    { id: 'aurora', name: 'Aurora Sky', color: 'bg-emerald-500' }
+  ]
+
+  const isBright = themeMode === 'bright'
 
   // Interactive Play Matchmaking Dashboard - Rebuilt with Bright Apple + Arc + Linear Design Language
   const renderPlayDashboard = () => {
@@ -183,7 +250,10 @@ export function EmptyHomePage() {
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 className="flex-1 min-h-0 flex items-center justify-center relative overflow-visible z-10"
               >
-                <IdentityHero isActive={activeId === 'play'} />
+                <IdentityHero 
+                  isActive={activeId === 'play'} 
+                  avatarConfig={avatarConfigs[customAvatar]}
+                />
               </motion.div>
             </div>
 
@@ -197,40 +267,64 @@ export function EmptyHomePage() {
             </motion.div>
           </div>
 
-          {/* Right Column: Four Compact Action Cards stacked vertically */}
+          {/* Right Column: Dynamic Action Cards / Customizer Switch */}
           <motion.div 
-            animate={matchState === 'loading' ? { x: 400, opacity: 0 } : { x: 0, opacity: 1 }}
+            animate={(matchState === 'loading') ? { x: 400, opacity: 0 } : { x: 0, opacity: 1 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full lg:w-[300px] shrink-0 flex flex-col gap-[20px] justify-center py-2 overflow-visible relative z-20"
+            className="w-full lg:w-[300px] shrink-0 flex flex-col justify-center py-2 overflow-visible relative z-20"
           >
-            <HomeActionCard 
-              title="Ranked 2v2" 
-              subtitle="Compete and climb" 
-              type="ranked-2v2" 
-              onClick={() => {
-                setSelectedMatchType('Ranked 2v2')
-                setMatchState('searching')
-              }}
-            />
-
-            <HomeActionCard 
-              title="Ranked Solo" 
-              subtitle="Prove your limits" 
-              type="ranked-solo" 
-              onClick={() => {
-                setSelectedMatchType('Ranked Solo')
-                setMatchState('searching')
-              }}
-            />
-            <HomeActionCard 
-              title="Custom Match" 
-              subtitle="Create or join a room" 
-              type="custom" 
-              onClick={() => {
-                setSelectedMatchType('Custom Match')
-                setMatchState('searching')
-              }}
-            />
+            <AnimatePresence mode="wait">
+              {!showLobbySettings ? (
+                <motion.div
+                  key="play-modes"
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 50 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex flex-col gap-[20px]"
+                >
+                  <HomeActionCard 
+                    title="Ranked 2v2" 
+                    subtitle="Compete and climb" 
+                    type="ranked-2v2" 
+                    onClick={() => {
+                      setSelectedMatchType('Ranked 2v2')
+                      setMatchState('searching')
+                    }}
+                  />
+                  <HomeActionCard 
+                    title="Ranked Solo" 
+                    subtitle="Prove your limits" 
+                    type="ranked-solo" 
+                    onClick={() => {
+                      setSelectedMatchType('Ranked Solo')
+                      setMatchState('searching')
+                    }}
+                  />
+                  <HomeActionCard 
+                    title="Custom Match" 
+                    subtitle="Create or join a room" 
+                    type="custom" 
+                    onClick={() => {
+                      setSelectedMatchType('Custom Match')
+                      setMatchState('searching')
+                    }}
+                  />
+                </motion.div>
+              ) : (
+                <LobbyCustomizerPanel
+                  key="customizer"
+                  isBright={isBright}
+                  onBack={() => setShowLobbySettings(false)}
+                  currentAvatar={customAvatar}
+                  onChangeAvatar={setCustomAvatar}
+                  currentBackground={customBackground}
+                  onChangeBackground={setCustomBackground}
+                  avatarOptions={avatarOptions}
+                  backgroundOptions={backgroundOptions}
+                />
+              )}
+            </AnimatePresence>
           </motion.div>
         </div>
       </div>
@@ -251,6 +345,7 @@ export function EmptyHomePage() {
             activeId={showFriendsPanel ? 'friends' : activeId} 
             onChangeActiveId={handleTabChange} 
             inRoom={inRoom}
+            onSettingsClick={() => setShowSettingsPanel(prev => !prev)}
           />
         </motion.div>
 
@@ -272,6 +367,17 @@ export function EmptyHomePage() {
           friendName={activeChatFriend || ''}
           onClose={() => setActiveChatFriend(null)}
           isBright={isBright}
+        />
+
+        {/* Settings panel drawer */}
+        <SettingsPanel
+          isOpen={showSettingsPanel}
+          onClose={() => setShowSettingsPanel(false)}
+          isBright={isBright}
+          themeMode={themeMode}
+          onToggleTheme={() => setThemeMode(prev => prev === 'bright' ? 'dark' : 'bright')}
+          onLobbySettingsClick={() => setShowLobbySettings(true)}
+          activeAvatarName={avatarConfigs[customAvatar].name}
         />
         
         {/* Right content viewport container */}
@@ -559,9 +665,7 @@ export function EmptyHomePage() {
             className="absolute inset-0 w-full h-full object-cover"
             decoding="async"
             style={{
-              filter: (inRoom || activeId === 'ranked')
-                ? 'brightness(1.04) contrast(0.95) saturate(1.08)' 
-                : 'brightness(1.02) contrast(0.95) saturate(1.08)'
+              filter: `${(inRoom || activeId === 'ranked') ? 'blur(10px) ' : ''}${backgroundConfigs[customBackground].filterStyle}`
             }}
           />
 
@@ -569,7 +673,9 @@ export function EmptyHomePage() {
           <div 
             className="absolute inset-0 pointer-events-none z-12"
             style={{
-              background: 'linear-gradient(90deg, #F7F8FC 0%, rgba(247, 248, 252, 0.8) 5%, transparent 16%, transparent 88%, rgba(247, 248, 252, 0.8) 96%, #F7F8FC 100%)'
+              background: isBright
+                ? 'linear-gradient(90deg, #F7F8FC 0%, rgba(247, 248, 252, 0.8) 5%, transparent 16%, transparent 88%, rgba(247, 248, 252, 0.8) 96%, #F7F8FC 100%)'
+                : 'linear-gradient(90deg, #090615 0%, rgba(9, 6, 21, 0.8) 5%, transparent 16%, transparent 88%, rgba(9, 6, 21, 0.8) 96%, #090615 100%)'
             }}
           />
 

@@ -9,6 +9,7 @@ interface FloatingSidebarProps {
   onChangeActiveId: (id: string) => void
   inRoom: boolean // Context-aware lobby/match state
   className?: string
+  onSettingsClick?: () => void
 }
 
 export function FloatingSidebar({
@@ -16,6 +17,7 @@ export function FloatingSidebar({
   onChangeActiveId,
   inRoom,
   className,
+  onSettingsClick,
 }: FloatingSidebarProps) {
   const [isMounted, setIsMounted] = useState(false)
 
@@ -148,6 +150,7 @@ export function FloatingSidebar({
       {/* Bottom Profile Section separated by auto margin */}
       <div className="avatar-dock">
         <motion.button
+          onClick={onSettingsClick}
           animate={{
             opacity: 0.78, // Understated rest state (increased for clarity)
           }}
@@ -161,7 +164,7 @@ export function FloatingSidebar({
             stiffness: 400,
             damping: 20,
           }}
-          className="avatar-btn focus-ring"
+          className="avatar-btn focus-ring cursor-pointer"
           aria-label="Settings Menu"
         >
           <Settings size={22} strokeWidth={2} />
