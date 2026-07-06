@@ -262,7 +262,7 @@ export function EmptyHomePage() {
 
           {/* Right Column: Action Cards stacked vertically */}
           <motion.div 
-            animate={(matchState === 'loading' || showLobbySettings) ? { x: 400, opacity: 0 } : { x: 0, opacity: 1 }}
+            animate={matchState === 'loading' ? { x: 400, opacity: 0 } : { x: 0, opacity: 1 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="w-full lg:w-[300px] shrink-0 flex flex-col gap-[20px] justify-center py-2 overflow-visible relative z-20"
           >
@@ -345,21 +345,6 @@ export function EmptyHomePage() {
           isBright={isBright}
           themeMode={themeMode}
           onToggleTheme={() => setThemeMode(prev => prev === 'bright' ? 'dark' : 'bright')}
-          onLobbySettingsClick={() => setShowLobbySettings(true)}
-          activeAvatarName={avatarConfigs[customAvatar].name}
-        />
-        
-        {/* Lobby customizer drawer */}
-        <LobbyCustomizerPanel
-          isOpen={showLobbySettings}
-          onClose={() => setShowLobbySettings(false)}
-          isBright={isBright}
-          currentAvatar={customAvatar}
-          onChangeAvatar={setCustomAvatar}
-          currentBackground={customBackground}
-          onChangeBackground={setCustomBackground}
-          avatarOptions={avatarOptions}
-          backgroundOptions={backgroundOptions}
         />
         
         {/* Right content viewport container */}

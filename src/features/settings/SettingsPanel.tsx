@@ -8,8 +8,6 @@ interface SettingsPanelProps {
   isBright: boolean
   themeMode: 'bright' | 'dark'
   onToggleTheme: () => void
-  onLobbySettingsClick: () => void
-  activeAvatarName: string
 }
 
 export function SettingsPanel({
@@ -17,9 +15,7 @@ export function SettingsPanel({
   onClose,
   isBright,
   themeMode,
-  onToggleTheme,
-  onLobbySettingsClick,
-  activeAvatarName
+  onToggleTheme
 }: SettingsPanelProps) {
   return (
     <AnimatePresence>
@@ -135,38 +131,6 @@ export function SettingsPanel({
               </button>
             </div>
 
-            {/* Lobby Customization Selector Row */}
-            <div
-              onClick={() => {
-                onLobbySettingsClick()
-                onClose()
-              }}
-              className={cn(
-                "flex items-center justify-between p-2.5 rounded-xl border transition-all duration-150 cursor-pointer active:scale-98",
-                isBright ? "bg-white/30 hover:bg-white/50 border-white/50" : "bg-white/5 hover:bg-white/10 border-white/5"
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "p-1.5 rounded-lg border",
-                  isBright ? "bg-slate-100 border-slate-200 text-slate-700" : "bg-white/5 border-white/5 text-slate-300"
-                )}>
-                  <Sliders size={13} />
-                </div>
-                <div>
-                  <span className={cn("text-xs font-bold block", isBright ? "text-slate-800" : "text-white")}>
-                    Lobby Customizer
-                  </span>
-                  <span className={cn(
-                    "text-[9px] font-extrabold uppercase tracking-wider block mt-0.5",
-                    isBright ? "text-slate-600" : "text-slate-400"
-                  )}>
-                    Hero: {activeAvatarName}
-                  </span>
-                </div>
-              </div>
-              <ChevronRight size={14} className="text-slate-400" />
-            </div>
           </div>
         </motion.div>
       )}
