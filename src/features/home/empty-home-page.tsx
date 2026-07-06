@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { FloatingSidebar } from '@/components/layout'
-import { cn } from '@/utils'
-import { CheckCircle2, BookOpen, Check } from 'lucide-react'
+import { cn, apiFetch } from '@/utils'
+import { CheckCircle2, BookOpen, Check, Loader2 } from 'lucide-react'
 import { MatchLoadingScreen } from './MatchLoadingScreen'
 import { LeaderboardScreen } from '../leaderboard/LeaderboardScreen'
 import { FriendsPanel } from '../friends/FriendsPanel'
@@ -96,6 +96,7 @@ export function EmptyHomePage() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
   const [user, setUser] = useState<any>(localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null)
   const [socket, setSocket] = useState<Socket | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(true)
   
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
   const [authUsername, setAuthUsername] = useState('')
@@ -131,6 +132,52 @@ export function EmptyHomePage() {
 
   const socketRef = useRef<Socket | null>(null)
 
+  const matchStateRef = useRef(matchState)
+  useEffect(() => {
+    matchStateRef.current = matchState
+  }, [matchState])
+
+  const selectedMatchTypeRef = useRef(selectedMatchType)
+  useEffect(() => {
+    selectedMatchTypeRef.current = selectedMatchType
+  }, [selectedMatchType])
+
+  // Silent refresh / restore session on startup
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const localRefreshToken = localStorage.getItem('refreshToken')
+        const res = await fetch("http://localhost:3001/auth/refresh", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken: localRefreshToken }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          localStorage.setItem('token', data.accessToken)
+          localStorage.setItem('user', JSON.stringify(data.user))
+          if (data.refreshToken) {
+            localStorage.setItem('refreshToken', data.refreshToken)
+          }
+          setToken(data.accessToken)
+          setUser(data.user)
+        } else {
+          // If refresh failed, clear local credentials
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          localStorage.removeItem('refreshToken')
+          setToken(null)
+          setUser(null)
+        }
+      } catch (err) {
+        console.error("Session restore failed:", err)
+      } finally {
+        setIsRefreshing(false)
+      }
+    }
+    checkSession()
+  }, [])
+
   // Establish socket connection on token load
   useEffect(() => {
     if (!token) {
@@ -150,6 +197,42 @@ export function EmptyHomePage() {
 
     s.on("connect", () => {
       console.log("Connected to CodeWar WebSocket server")
+      if (matchStateRef.current === 'searching') {
+        const mode = selectedMatchTypeRef.current === 'Ranked 2v2' ? '2v2' : 'solo'
+        s.emit("queue:join", { mode })
+        console.log("Automatically rejoined matchmaking queue after reconnect:", mode)
+      }
+    })
+
+    s.on("connect_error", async (err: any) => {
+      console.error("Socket connection error:", err.message)
+      if (err.message.includes("Authentication error") || err.message.includes("token")) {
+        try {
+          const localRefreshToken = localStorage.getItem('refreshToken')
+          const res = await fetch("http://localhost:3001/auth/refresh", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refreshToken: localRefreshToken }),
+          })
+          if (res.ok) {
+            const data = await res.json()
+            localStorage.setItem('token', data.accessToken)
+            localStorage.setItem('user', JSON.stringify(data.user))
+            if (data.refreshToken) {
+              localStorage.setItem('refreshToken', data.refreshToken)
+            }
+            setToken(data.accessToken)
+            setUser(data.user)
+            s.auth = { token: data.accessToken }
+            s.connect()
+          } else {
+            handleLogout()
+          }
+        } catch (refreshErr) {
+          console.error("Failed to refresh token on socket error:", refreshErr)
+          handleLogout()
+        }
+      }
     })
 
     s.on("auth:kick", (data: any) => {
@@ -237,11 +320,10 @@ export function EmptyHomePage() {
       if (status === 'COMPLETED' || status === 'FAILED') {
         socketRef.current?.emit("room:status", { status: verdict || status })
         
-        fetch(`http://localhost:3001/submissions/${submissionId}`, {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        })
+        apiFetch(`http://localhost:3001/submissions/${submissionId}`, {}, (newToken, newUser) => {
+          setToken(newToken)
+          setUser(newUser)
+        }, handleLogout)
         .then(res => res.json())
         .then(data => {
           setActiveSubmission({
@@ -325,7 +407,10 @@ export function EmptyHomePage() {
     const fetchProblem = async () => {
       setLoadingProblem(true)
       try {
-        const res = await fetch(`http://localhost:3001/problems/${currentMatchState.problemId}`)
+        const res = await apiFetch(`http://localhost:3001/problems/${currentMatchState.problemId}`, {}, (newToken, newUser) => {
+          setToken(newToken)
+          setUser(newUser)
+        }, handleLogout)
         if (res.ok) {
           const data = await res.json()
           setActiveProblem(data)
@@ -369,6 +454,14 @@ export function EmptyHomePage() {
   }, [matchState])
 
   const startSearch = (type: string) => {
+    if (!token) {
+      alert("You must be signed in to join the queue.")
+      return
+    }
+    if (!socket || !socket.connected) {
+      alert("Not connected to the game server. Please try again in a moment.")
+      return
+    }
     setSelectedMatchType(type)
     setMatchState('searching')
     const mode = type === 'Ranked 2v2' ? '2v2' : 'solo'
@@ -394,18 +487,20 @@ export function EmptyHomePage() {
     socket?.emit("room:status", { status: isRun ? "Running tests" : "Submitting" })
 
     try {
-      const res = await fetch("http://localhost:3001/submissions", {
+      const res = await apiFetch("http://localhost:3001/submissions", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           problemId: activeProblem.id,
           code: codeValue,
           language: language.toLowerCase()
         })
-      })
+      }, (newToken, newUser) => {
+        setToken(newToken)
+        setUser(newUser)
+      }, handleLogout)
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}))
@@ -435,9 +530,20 @@ export function EmptyHomePage() {
     }
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      const localRefreshToken = localStorage.getItem('refreshToken')
+      await fetch("http://localhost:3001/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: localRefreshToken }),
+      })
+    } catch (err) {
+      console.error("Failed to log out on server:", err)
+    }
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+    localStorage.removeItem('refreshToken')
     setToken(null)
     setUser(null)
     setShowSettingsPanel(false)
@@ -632,6 +738,10 @@ export function EmptyHomePage() {
           socket={socket}
           token={token}
           onLogout={handleLogout}
+          onTokenRefreshed={(newToken, newUser) => {
+            setToken(newToken)
+            setUser(newUser)
+          }}
         />
 
         {/* Chat side panel drawer */}
@@ -702,7 +812,14 @@ export function EmptyHomePage() {
 
               {/* Other Dashboards Container */}
               {activeId === 'ranked' && (
-                <LeaderboardScreen isBright={isBright} />
+                <LeaderboardScreen 
+                  isBright={isBright}
+                  onTokenRefreshed={(newToken, newUser) => {
+                    setToken(newToken)
+                    setUser(newUser)
+                  }}
+                  onLogout={handleLogout}
+                />
               )}
 
               {activeId !== 'play' && activeId !== 'ranked' && (
@@ -915,6 +1032,35 @@ export function EmptyHomePage() {
     )
   }
 
+  if (isRefreshing) {
+    return (
+      <div className={cn(
+        "relative h-screen w-screen overflow-hidden flex flex-col items-center justify-center font-sans",
+        isBright ? "bg-[#F7F8FC] text-[#1A1533]" : "bg-[#0E1118] text-white"
+      )}>
+        <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+          <div 
+            className="absolute"
+            style={{
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '800px',
+              height: '800px',
+              background: 'radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%)',
+              filter: 'blur(80px)',
+              opacity: 0.8
+            }}
+          />
+        </div>
+        <div className="z-10 flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 text-[#7C3AED] animate-spin" />
+          <span className="text-sm font-semibold tracking-wider uppercase text-slate-400">Verifying Session...</span>
+        </div>
+      </div>
+    )
+  }
+
   if (!token) {
     const handleAuthSubmit = async (e: React.FormEvent) => {
       e.preventDefault()
@@ -931,7 +1077,8 @@ export function EmptyHomePage() {
         const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+          body: JSON.stringify(body),
+          credentials: 'include'
         })
 
         const data = await res.json()
@@ -945,13 +1092,17 @@ export function EmptyHomePage() {
           const loginRes = await fetch('http://localhost:3001/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: authEmail, password: authPassword })
+            body: JSON.stringify({ email: authEmail, password: authPassword }),
+            credentials: 'include'
           })
           loginData = await loginRes.json()
         }
 
         localStorage.setItem('token', loginData.accessToken)
         localStorage.setItem('user', JSON.stringify(loginData.user))
+        if (loginData.refreshToken) {
+          localStorage.setItem('refreshToken', loginData.refreshToken)
+        }
         setToken(loginData.accessToken)
         setUser(loginData.user)
       } catch (err: any) {

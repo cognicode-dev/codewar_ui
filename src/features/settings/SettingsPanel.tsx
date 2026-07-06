@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { X, Settings, User } from 'lucide-react'
-import { cn } from '@/utils'
+import { cn, apiFetch } from '@/utils'
 
 interface SettingsPanelProps {
   isOpen: boolean
@@ -52,15 +52,16 @@ export function SettingsPanel({
     setIsUpdating(true)
 
     try {
-      const token = localStorage.getItem('token')
-      const res = await fetch('http://localhost:3001/profiles/me/username', {
+      const res = await apiFetch('http://localhost:3001/profiles/me/username', {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ username: newUsername.trim() })
-      })
+      }, (newToken, newUser) => {
+        if (onUpdateToken) onUpdateToken(newToken)
+        if (onUpdateUser) onUpdateUser(newUser)
+      }, onLogout)
 
       const data = await res.json()
       if (!res.ok) {

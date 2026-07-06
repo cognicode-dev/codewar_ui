@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Trophy, Users, Search, Star, Sparkles, Loader2 } from 'lucide-react'
-import { cn } from '@/utils'
+import { cn, apiFetch } from '@/utils'
 
 interface LeaderboardEntry {
   rank: number
@@ -13,7 +13,15 @@ interface LeaderboardEntry {
   isSelf?: boolean
 }
 
-export function LeaderboardScreen({ isBright }: { isBright: boolean }) {
+export function LeaderboardScreen({ 
+  isBright,
+  onTokenRefreshed,
+  onLogout,
+}: { 
+  isBright: boolean;
+  onTokenRefreshed?: (newToken: string, newUser: any) => void;
+  onLogout?: () => void;
+}) {
   const [activeTab, setActiveTab] = useState<'global' | 'friends'>('global')
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
@@ -44,7 +52,7 @@ export function LeaderboardScreen({ isBright }: { isBright: boolean }) {
 
     try {
       // 1. Fetch Global rankings
-      const globalRes = await fetch("http://localhost:3001/profiles/leaderboard")
+      const globalRes = await apiFetch("http://localhost:3001/profiles/leaderboard", {}, onTokenRefreshed, onLogout)
       if (globalRes.ok) {
         const globalData = await globalRes.json()
         const mappedGlobal = globalData.data.map((r: any, idx: number) => ({
@@ -62,11 +70,7 @@ export function LeaderboardScreen({ isBright }: { isBright: boolean }) {
       // 2. Fetch friends and build friends leaderboard
       if (token) {
         // Fetch current user rating first to include them in the friends rankings
-        const meRes = await fetch("http://localhost:3001/profiles/me", {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        })
+        const meRes = await apiFetch("http://localhost:3001/profiles/me", {}, onTokenRefreshed, onLogout)
         let meEntry: any = null
         if (meRes.ok) {
           const meData = await meRes.json()
@@ -79,11 +83,7 @@ export function LeaderboardScreen({ isBright }: { isBright: boolean }) {
           }
         }
 
-        const friendsRes = await fetch("http://localhost:3001/social/friends", {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        })
+        const friendsRes = await apiFetch("http://localhost:3001/social/friends", {}, onTokenRefreshed, onLogout)
         if (friendsRes.ok) {
           const friendsData = await friendsRes.json()
           

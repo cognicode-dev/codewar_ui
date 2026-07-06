@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Search, X, MessageSquare, UserPlus, Star, ChevronLeft, UserX, Loader2, MoreVertical, Check } from 'lucide-react'
-import { cn } from '@/utils'
+import { cn, apiFetch } from '@/utils'
 import { Socket } from 'socket.io-client'
 
 interface Friend {
@@ -23,6 +23,7 @@ interface FriendsPanelProps {
   socket: Socket | null
   token: string | null
   onLogout?: () => void
+  onTokenRefreshed?: (newToken: string, newUser: any) => void
 }
 
 export function FriendsPanel({ 
@@ -34,6 +35,7 @@ export function FriendsPanel({
   socket,
   token,
   onLogout,
+  onTokenRefreshed,
 }: FriendsPanelProps) {
   const [activeView, setActiveView] = useState<'friends' | 'requests'>('friends')
   const [searchQuery, setSearchQuery] = useState('')
@@ -91,13 +93,8 @@ export function FriendsPanel({
     setLoadingData(true)
     try {
       // 1. Fetch requests
-      const reqRes = await fetch("http://localhost:3001/social/requests", {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      })
-      if (reqRes.status === 401) {
-        handleUnauthorized()
+      const reqRes = await apiFetch("http://localhost:3001/social/requests", {}, onTokenRefreshed, onLogout)
+      if (!reqRes.ok) {
         return
       }
       if (reqRes.ok) {
@@ -131,13 +128,8 @@ export function FriendsPanel({
           }
         })
       } else {
-        const friendsRes = await fetch("http://localhost:3001/social/friends", {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        })
-        if (friendsRes.status === 401) {
-          handleUnauthorized()
+        const friendsRes = await apiFetch("http://localhost:3001/social/friends", {}, onTokenRefreshed, onLogout)
+        if (!friendsRes.ok) {
           return
         }
         if (friendsRes.ok) {
@@ -201,14 +193,10 @@ export function FriendsPanel({
   const handleAcceptRequest = async (request: any) => {
     if (!token) return
     try {
-      const res = await fetch(`http://localhost:3001/social/requests/${request.id}/accept`, {
-        method: 'POST',
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      })
-      if (res.status === 401) {
-        handleUnauthorized()
+      const res = await apiFetch(`http://localhost:3001/social/requests/${request.id}/accept`, {
+        method: 'POST'
+      }, onTokenRefreshed, onLogout)
+      if (!res.ok) {
         return
       }
       if (res.ok) {
@@ -223,14 +211,10 @@ export function FriendsPanel({
   const handleDeclineRequest = async (request: any) => {
     if (!token) return
     try {
-      const res = await fetch(`http://localhost:3001/social/requests/${request.id}/decline`, {
-        method: 'POST',
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      })
-      if (res.status === 401) {
-        handleUnauthorized()
+      const res = await apiFetch(`http://localhost:3001/social/requests/${request.id}/decline`, {
+        method: 'POST'
+      }, onTokenRefreshed, onLogout)
+      if (!res.ok) {
         return
       }
       if (res.ok) {
@@ -245,14 +229,10 @@ export function FriendsPanel({
     if (!token) return
     if (!confirm("Are you sure you want to remove this friend?")) return
     try {
-      const res = await fetch(`http://localhost:3001/social/friends/${friendId}`, {
-        method: 'DELETE',
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      })
-      if (res.status === 401) {
-        handleUnauthorized()
+      const res = await apiFetch(`http://localhost:3001/social/friends/${friendId}`, {
+        method: 'DELETE'
+      }, onTokenRefreshed, onLogout)
+      if (!res.ok) {
         return
       }
       if (res.ok) {
@@ -272,21 +252,15 @@ export function FriendsPanel({
     setAddFriendSuccess(null)
 
     try {
-      const res = await fetch("http://localhost:3001/social/requests", {
+      const res = await apiFetch("http://localhost:3001/social/requests", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           targetUsername: addFriendName.trim()
         })
-      })
-
-      if (res.status === 401) {
-        handleUnauthorized()
-        return
-      }
+      }, onTokenRefreshed, onLogout)
 
       const data = await res.json().catch(() => ({}))
       if (res.ok) {

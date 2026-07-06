@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { Code2, Zap } from 'lucide-react'
+import { Zap } from 'lucide-react'
 import { cn } from '@/utils'
 
 interface Player {
@@ -224,7 +224,7 @@ export function MatchLoadingScreen({
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   transition={{ duration: 0.6, delay: idx * 0.15, ease: [0.16, 1, 0.3, 1] }}
                   className={cn(
-                    "relative overflow-hidden rounded-3xl p-5 border flex items-center justify-between group",
+                    "relative overflow-hidden rounded-3xl p-5 border flex items-center justify-between group pointer-events-none",
                     player.isSelf 
                       ? (isBright 
                           ? "bg-gradient-to-r from-indigo-50/70 to-indigo-100/30 border-indigo-200/60 shadow-lg" 
@@ -283,15 +283,6 @@ export function MatchLoadingScreen({
 
                   {/* Language and Progress Badge Right */}
                   <div className="text-right flex flex-col items-end gap-1.5 relative z-10">
-                    <div className={cn(
-                      "px-3 py-1 rounded-xl text-[10px] font-extrabold tracking-wider border flex items-center gap-1.5 uppercase",
-                      isBright 
-                        ? "bg-slate-100 border-slate-200 text-slate-600" 
-                        : "bg-slate-900 border-white/5 text-slate-300"
-                    )}>
-                      <Code2 size={11} className="text-indigo-400" />
-                      {player.language}
-                    </div>
                     <span className={cn(
                       "text-xs font-mono font-bold tracking-tight",
                       playerProgressVal >= 100 ? "text-emerald-500" : (isBright ? "text-slate-500" : "text-slate-400")
@@ -367,7 +358,7 @@ export function MatchLoadingScreen({
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   transition={{ duration: 0.6, delay: idx * 0.15, ease: [0.16, 1, 0.3, 1] }}
                   className={cn(
-                    "relative overflow-hidden rounded-3xl p-5 border flex items-center justify-between group",
+                    "relative overflow-hidden rounded-3xl p-5 border flex items-center justify-between group pointer-events-none",
                     isBright ? "glass-card border-white/50" : "bg-[#0b0f19]/60 border-white/5"
                   )}
                 >
@@ -406,15 +397,6 @@ export function MatchLoadingScreen({
 
                   {/* Language and Progress Badge Right */}
                   <div className="text-right flex flex-col items-end gap-1.5 relative z-10">
-                    <div className={cn(
-                      "px-3 py-1 rounded-xl text-[10px] font-extrabold tracking-wider border flex items-center gap-1.5 uppercase",
-                      isBright 
-                        ? "bg-slate-100 border-slate-200 text-slate-600" 
-                        : "bg-slate-900 border-white/5 text-slate-300"
-                    )}>
-                      <Code2 size={11} className="text-rose-400" />
-                      {player.language}
-                    </div>
                     <span className={cn(
                       "text-xs font-mono font-bold tracking-tight",
                       playerProgressVal >= 100 ? "text-emerald-500" : (isBright ? "text-slate-500" : "text-slate-400")
