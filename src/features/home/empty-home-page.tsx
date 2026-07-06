@@ -574,9 +574,10 @@ export function EmptyHomePage() {
             left: '-300px',
             width: '1200px',
             height: '1200px',
-            background: 'radial-gradient(circle, #FFF7F2 0%, transparent 70%)',
+            background: 'radial-gradient(circle at center, #FFF7F2 0%, rgba(255, 247, 242, 0.4) 30%, rgba(255, 247, 242, 0.1) 60%, transparent 80%)',
             opacity: 0.45,
-            filter: 'blur(120px)'
+            filter: 'blur(20px)',
+            willChange: 'transform'
           }}
         />
         {/* Gradient 2 (Top Center): #F2ECFF, 1500px, opacity 0.55 */}
@@ -588,9 +589,10 @@ export function EmptyHomePage() {
             transform: 'translateX(-50%)',
             width: '1500px',
             height: '1500px',
-            background: 'radial-gradient(circle, #F2ECFF 0%, transparent 70%)',
+            background: 'radial-gradient(circle at center, #F2ECFF 0%, rgba(242, 236, 255, 0.4) 30%, rgba(242, 236, 255, 0.1) 60%, transparent 80%)',
             opacity: 0.55,
-            filter: 'blur(140px)'
+            filter: 'blur(20px)',
+            willChange: 'transform'
           }}
         />
         {/* Gradient 3 (Bottom Right): #EEF3FF, 1200px, opacity 0.45 */}
@@ -601,9 +603,10 @@ export function EmptyHomePage() {
             right: '-300px',
             width: '1200px',
             height: '1200px',
-            background: 'radial-gradient(circle, #EEF3FF 0%, transparent 70%)',
+            background: 'radial-gradient(circle at center, #EEF3FF 0%, rgba(238, 243, 255, 0.4) 30%, rgba(238, 243, 255, 0.1) 60%, transparent 80%)',
             opacity: 0.45,
-            filter: 'blur(120px)'
+            filter: 'blur(20px)',
+            willChange: 'transform'
           }}
         />
         {/* Gradient 4 (Center Subtle): #F5EEFF, 900px, opacity 0.22 */}
@@ -615,9 +618,10 @@ export function EmptyHomePage() {
             transform: 'translate(-50%, -50%)',
             width: '900px',
             height: '900px',
-            background: 'radial-gradient(circle, #F5EEFF 0%, transparent 70%)',
+            background: 'radial-gradient(circle at center, #F5EEFF 0%, rgba(245, 238, 255, 0.4) 30%, rgba(245, 238, 255, 0.1) 60%, transparent 80%)',
             opacity: 0.22,
-            filter: 'blur(160px)'
+            filter: 'blur(20px)',
+            willChange: 'transform'
           }}
         />
 
@@ -711,7 +715,7 @@ export function EmptyHomePage() {
       <div className={cn("relative z-10 w-full h-full overflow-hidden", isBright && "light-theme")}>
         {activeId === 'ranked' && (
           <div 
-            className="absolute inset-0 z-5 transition-all duration-500 ease-in-out pointer-events-none backdrop-blur-[35px]"
+            className="absolute inset-0 z-5 transition-all duration-500 ease-in-out pointer-events-none backdrop-blur-[12px]"
             style={{
               background: isBright 
                 ? 'rgba(247, 248, 252, 0.45)' 

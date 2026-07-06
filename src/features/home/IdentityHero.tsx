@@ -28,10 +28,11 @@ export function IdentityHero({ identity = voidConfig, isActive = true }: Identit
             height: '900px',
             top: '-15%',
             left: '50%',
-            transform: 'translateX(-50%)',
-            background: `radial-gradient(circle, ${identity.glowColor} 0%, rgba(124, 58, 237, 0.05) 50%, transparent 80%)`,
-            filter: 'blur(180px)',
-            opacity: 0.5
+            transform: 'translateX(-50%) translateZ(0)',
+            background: `radial-gradient(circle at center, ${identity.glowColor} 0%, rgba(124, 58, 237, 0.08) 40%, transparent 80%)`,
+            filter: 'blur(30px)',
+            opacity: 0.5,
+            willChange: 'transform'
           }}
         />
 
@@ -43,10 +44,11 @@ export function IdentityHero({ identity = voidConfig, isActive = true }: Identit
             height: '800px',
             top: '50%',
             left: '50%',
-            transform: 'translate(-50%, -50%) translateX(-24px) translateY(-40px)', // Aligned horizontally to root scenery offset
-            background: `radial-gradient(circle, ${identity.glowColor} 0%, rgba(124, 58, 237, 0.04) 60%, transparent 90%)`,
-            filter: 'blur(180px)',
-            opacity: 0.08
+            transform: 'translate(-50%, -50%) translateX(-24px) translateY(-40px) translateZ(0)', // Aligned horizontally to root scenery offset
+            background: `radial-gradient(circle at center, ${identity.glowColor} 0%, rgba(124, 58, 237, 0.06) 40%, transparent 80%)`,
+            filter: 'blur(30px)',
+            opacity: 0.08,
+            willChange: 'transform'
           }}
         />
         
@@ -90,16 +92,18 @@ export function IdentityHero({ identity = voidConfig, isActive = true }: Identit
             duration: 4,
             ease: 'easeInOut'
           } : { duration: 0.1 }}
+          style={{ willChange: 'transform' }}
           className="w-full h-full flex items-center justify-center overflow-visible"
         >
           <img
             src={identity.avatar}
             alt={`${identity.name} Avatar`}
-            className="h-[82%] object-contain overflow-visible opacity-100" // Fully opaque character stays solid
+            className="h-[82%] object-contain overflow-visible opacity-100" // Original styling
             decoding="async"
             style={{
               filter: 'drop-shadow(0 0 35px rgba(124, 58, 237, 0.35)) drop-shadow(0 0 75px rgba(124, 58, 237, 0.15))', // Crisp rim light bloom
-              transform: 'scale(1.5)' // Scaled UP by 50% on img tag to prevent Framer Motion translate overrides
+              transform: 'scale(1.5)', // Original scale
+              willChange: 'transform'
             }}
           />
         </motion.div>
@@ -111,11 +115,12 @@ export function IdentityHero({ identity = voidConfig, isActive = true }: Identit
         style={{
           bottom: '8%',
           left: '50%',
-          transform: 'translateX(-50%) translateX(-50px)', // Centered on the character
+          transform: 'translateX(-50%) translateX(-50px) translateZ(0)', // Centered on the character
           width: '450px',
           height: '120px',
           background: `radial-gradient(ellipse at center, ${identity.glowColor.replace('0.18', '0.28')} 0%, ${identity.glowColor.replace('0.18', '0.06')} 50%, transparent 80%)`,
-          filter: 'blur(35px)',
+          filter: 'blur(10px)',
+          willChange: 'transform'
         }}
       />
     </div>
