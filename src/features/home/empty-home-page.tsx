@@ -152,6 +152,13 @@ export function EmptyHomePage() {
       console.log("Connected to CodeWar WebSocket server")
     })
 
+    s.on("auth:kick", (data: any) => {
+      console.warn("Kicked from server:", data.reason)
+      s.disconnect()
+      handleLogout()
+      alert("You have been logged out because your account was logged in from another location.")
+    })
+
     s.on("queue:status", (envelope: any) => {
       const { state } = envelope.payload
       if (state === 'QUEUED') {
