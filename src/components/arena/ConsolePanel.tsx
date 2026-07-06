@@ -6,11 +6,24 @@ import { cn } from '@/utils'
 interface ConsolePanelProps {
   isBright?: boolean
   initialCollapsed?: boolean
+  examples?: { id?: number; input: string; output: string }[]
+  activeSubmission?: {
+    status: string
+    verdict?: string | null
+    timeMs?: number | null
+    memoryMb?: number | null
+    error?: string | null
+    results?: any[]
+  } | null
+  submissions?: any[]
 }
 
 export function ConsolePanel({
   isBright = false,
   initialCollapsed = true,
+  examples = [],
+  activeSubmission = null,
+  submissions = [],
 }: ConsolePanelProps) {
   const [collapsed, setCollapsed] = useState(initialCollapsed)
   const [height, setHeight] = useState(200)
@@ -44,6 +57,14 @@ export function ConsolePanel({
       document.body.style.userSelect = 'auto'
     }
   }
+
+  // Auto expand when there's an active submission running/completing
+  useEffect(() => {
+    if (activeSubmission) {
+      setCollapsed(false)
+      setActiveTab('Output')
+    }
+  }, [activeSubmission])
 
   // Cleanup event listeners
   useEffect(() => {
@@ -112,32 +133,87 @@ export function ConsolePanel({
         )}>
           {activeTab === 'Test Cases' && (
             <div className="space-y-4">
-              <div>
-                <span className="text-slate-500 font-semibold block mb-1">nums =</span>
-                <div className={cn("p-2.5 rounded-xl border max-w-sm", isBright ? "bg-white/80 border-slate-200 text-slate-700" : "bg-[#030407] border-slate-900 text-slate-300")}>
-                  [1, 3, 4, 2, 2]
-                </div>
-              </div>
-              <div>
-                <span className="text-slate-500 font-semibold block mb-1">Expected Output =</span>
-                <div className={cn("p-2.5 rounded-xl border max-w-sm", isBright ? "bg-white/80 border-slate-200 text-slate-700" : "bg-[#030407] border-slate-900 text-slate-300")}>
-                  2
-                </div>
-              </div>
+              {examples && examples.length > 0 ? (
+                examples.map((ex, idx) => (
+                  <div key={idx} className="space-y-2 border-b border-slate-900/10 pb-4 last:border-b-0">
+                    <span className="text-indigo-500 font-bold block mb-1">Case {idx + 1}</span>
+                    <div>
+                      <span className="text-slate-500 font-semibold block mb-1">Input =</span>
+                      <pre className={cn("p-2.5 rounded-xl border max-w-sm whitespace-pre-wrap font-mono", isBright ? "bg-white/80 border-slate-200 text-slate-700" : "bg-[#030407] border-slate-900 text-slate-300")}>
+                        {ex.input}
+                      </pre>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 font-semibold block mb-1">Expected Output =</span>
+                      <pre className={cn("p-2.5 rounded-xl border max-w-sm whitespace-pre-wrap font-mono", isBright ? "bg-white/80 border-slate-200 text-slate-700" : "bg-[#030407] border-slate-900 text-slate-300")}>
+                        {ex.output}
+                      </pre>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-slate-500 italic">No example test cases configured for this problem.</div>
+              )}
             </div>
           )}
 
           {activeTab === 'Output' && (
             <div className="space-y-2">
-              <div className="text-emerald-500 font-bold flex items-center gap-1.5 mb-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Code ran successfully.
-              </div>
-              <div className={cn("p-4 rounded-xl border max-w-lg leading-relaxed", isBright ? "bg-white/80 border-slate-200 text-slate-700" : "bg-[#030407] border-slate-900 text-slate-300")}>
-                <div><span className="text-slate-500 font-semibold">Status:</span> Accepted</div>
-                <div><span className="text-slate-500 font-semibold">Your Output:</span> 2</div>
-                <div><span className="text-slate-500 font-semibold">Execution Time:</span> 12ms</div>
-              </div>
+              {activeSubmission ? (
+                <>
+                  <div className={cn(
+                    "font-bold flex items-center gap-1.5 mb-2",
+                    activeSubmission.status === 'COMPLETED' 
+                      ? activeSubmission.verdict === 'ACCEPTED' ? 'text-emerald-500' : 'text-rose-500'
+                      : activeSubmission.status === 'FAILED' ? 'text-rose-500' : 'text-indigo-500'
+                  )}>
+                    <span className={cn(
+                      "h-1.5 w-1.5 rounded-full animate-pulse",
+                      activeSubmission.status === 'COMPLETED' 
+                        ? activeSubmission.verdict === 'ACCEPTED' ? 'bg-emerald-500' : 'bg-rose-500'
+                        : activeSubmission.status === 'FAILED' ? 'bg-rose-500' : 'bg-indigo-500'
+                    )} />
+                    {activeSubmission.status === 'PENDING' && "Submission in Queue..."}
+                    {activeSubmission.status === 'RUNNING' && "Executing Test Cases..."}
+                    {activeSubmission.status === 'FAILED' && "Execution Failed"}
+                    {activeSubmission.status === 'COMPLETED' && (
+                      activeSubmission.verdict === 'ACCEPTED' 
+                        ? "Accepted - All test cases passed!"
+                        : `Rejected - ${activeSubmission.verdict}`
+                    )}
+                  </div>
+                  <div className={cn("p-4 rounded-xl border max-w-lg leading-relaxed space-y-1.5", isBright ? "bg-white/80 border-slate-200 text-slate-700" : "bg-[#030407] border-slate-900 text-slate-300")}>
+                    <div>
+                      <span className="text-slate-500 font-semibold">Status:</span> {activeSubmission.status}
+                    </div>
+                    {activeSubmission.verdict && (
+                      <div>
+                        <span className="text-slate-500 font-semibold">Verdict:</span> {activeSubmission.verdict}
+                      </div>
+                    )}
+                    {activeSubmission.timeMs !== undefined && activeSubmission.timeMs !== null && (
+                      <div>
+                        <span className="text-slate-500 font-semibold">Runtime:</span> {activeSubmission.timeMs}ms
+                      </div>
+                    )}
+                    {activeSubmission.memoryMb !== undefined && activeSubmission.memoryMb !== null && (
+                      <div>
+                        <span className="text-slate-500 font-semibold">Memory:</span> {activeSubmission.memoryMb}MB
+                      </div>
+                    )}
+                    {activeSubmission.error && (
+                      <div className="pt-2">
+                        <span className="text-rose-500 font-bold block mb-1">Error Logs:</span>
+                        <pre className="p-2.5 rounded-lg bg-rose-500/5 border border-rose-500/10 text-rose-300 text-xs whitespace-pre-wrap max-h-40 overflow-y-auto">
+                          {activeSubmission.error}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="text-slate-500 italic">No output logs. Click "Run" or "Submit" to execute your solution.</div>
+              )}
             </div>
           )}
 
@@ -152,21 +228,30 @@ export function ConsolePanel({
 
           {activeTab === 'Submissions' && (
             <div className="space-y-3">
-              {[
-                { time: '2m ago', status: 'Accepted', runtime: '12ms', memory: '41.2 MB', color: 'text-emerald-500' },
-                { time: '1h ago', status: 'Time Limit Exceeded', runtime: 'N/A', memory: '64.5 MB', color: 'text-rose-500' },
-              ].map((sub, i) => (
-                <div key={i} className={cn("flex items-center justify-between p-3 rounded-xl border", isBright ? "bg-white/85 border-slate-200" : "bg-[#030407] border-slate-900")}>
-                  <div className="flex items-center gap-3">
-                    <span className={cn("font-bold text-[11px]", sub.color)}>{sub.status}</span>
-                    <span className="text-[10px] text-slate-500">{sub.time}</span>
-                  </div>
-                  <div className="flex items-center gap-4 text-[10px] text-slate-500 font-semibold">
-                    <span>Runtime: {sub.runtime}</span>
-                    <span>Memory: {sub.memory}</span>
-                  </div>
-                </div>
-              ))}
+              {submissions && submissions.length > 0 ? (
+                submissions.map((sub, i) => {
+                  const isAccepted = sub.verdict === 'ACCEPTED'
+                  const color = isAccepted ? 'text-emerald-500' : 'text-rose-500'
+                  return (
+                    <div key={i} className={cn("flex items-center justify-between p-3 rounded-xl border", isBright ? "bg-white/85 border-slate-200" : "bg-[#030407] border-slate-900")}>
+                      <div className="flex items-center gap-3">
+                        <span className={cn("font-bold text-[11px]", color)}>
+                          {sub.verdict || sub.status}
+                        </span>
+                        <span className="text-[10px] text-slate-500">
+                          {new Date(sub.createdAt).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-[10px] text-slate-500 font-semibold">
+                        <span>Runtime: {sub.timeMs !== null ? `${sub.timeMs}ms` : 'N/A'}</span>
+                        <span>Memory: {sub.memoryMb !== null ? `${sub.memoryMb}MB` : 'N/A'}</span>
+                      </div>
+                    </div>
+                  )
+                })
+              ) : (
+                <div className="text-slate-500 italic">No submissions recorded yet.</div>
+              )}
             </div>
           )}
         </div>

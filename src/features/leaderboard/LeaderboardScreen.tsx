@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { Trophy, Users, Search, Star, Sparkles } from 'lucide-react'
+import { Trophy, Users, Search, Star, Sparkles, Loader2 } from 'lucide-react'
 import { cn } from '@/utils'
 
 interface LeaderboardEntry {
@@ -13,42 +13,113 @@ interface LeaderboardEntry {
   isSelf?: boolean
 }
 
-// Mock player database, covering players matching visual layout requirements
-const globalPlayers: LeaderboardEntry[] = [
-  { rank: 1, name: 'Darlene (Gold)', avatarText: 'DA', avatarColor: 'bg-amber-500', score: 7791, hs: 156 },
-  { rank: 2, name: 'Darlene (Silver)', avatarText: 'DR', avatarColor: 'bg-indigo-500', score: 9374, hs: 156 },
-  { rank: 3, name: 'Kyle', avatarText: 'KY', avatarColor: 'bg-purple-600', score: 1439, hs: 156 },
-  { rank: 4, name: 'Arlene (Top)', avatarText: 'AR', avatarColor: 'bg-teal-600', score: 9359, hs: 156 },
-  { rank: 5, name: 'Dianne', avatarText: 'DI', avatarColor: 'bg-pink-600', score: 2798, hs: 156 },
-  { rank: 6, name: 'Arlene (Mid)', avatarText: 'AL', avatarColor: 'bg-orange-600', score: 4349, hs: 156 },
-  { rank: 7, name: 'Kaelen', avatarText: 'KA', avatarColor: 'bg-blue-600', score: 1920, hs: 145 },
-  { rank: 8, name: 'Sora_Dev', avatarText: 'SO', avatarColor: 'bg-rose-600', score: 1820, hs: 142 },
-  { rank: 25, name: 'Aubrey (You)', avatarText: 'AB', avatarColor: 'bg-violet-600', score: 4152, hs: 156, isSelf: true }
-]
-
-const friendsPlayers: LeaderboardEntry[] = [
-  { rank: 1, name: 'Kaelen', avatarText: 'KA', avatarColor: 'bg-blue-600', score: 2920, hs: 145 },
-  { rank: 2, name: 'Sora_Dev', avatarText: 'SO', avatarColor: 'bg-rose-600', score: 2820, hs: 142 },
-  { rank: 3, name: 'dev_knight', avatarText: 'DK', avatarColor: 'bg-amber-600', score: 2450, hs: 120 },
-  { rank: 4, name: 'Nexus_Core', avatarText: 'NX', avatarColor: 'bg-emerald-600', score: 2390, hs: 128 },
-  { rank: 5, name: 'Ghost_Coder', avatarText: 'GH', avatarColor: 'bg-slate-700', score: 2210, hs: 124 },
-  { rank: 6, name: 'Cipher_Dev', avatarText: 'CI', avatarColor: 'bg-teal-600', score: 2110, hs: 118 },
-  { rank: 7, name: 'Aubrey (You)', avatarText: 'AB', avatarColor: 'bg-violet-600', score: 4152, hs: 156, isSelf: true }
-]
-
 export function LeaderboardScreen({ isBright }: { isBright: boolean }) {
   const [activeTab, setActiveTab] = useState<'global' | 'friends'>('global')
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [highlightedPlayer, setHighlightedPlayer] = useState<string | null>(null)
   
+  const [globalPlayers, setGlobalPlayers] = useState<LeaderboardEntry[]>([])
+  const [friendsPlayers, setFriendsPlayers] = useState<LeaderboardEntry[]>([])
+  const [loading, setLoading] = useState(false)
+
   const dropdownRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   const activePlayers = activeTab === 'global' ? globalPlayers : friendsPlayers
 
+  const getAvatarColor = (rating: number) => {
+    if (rating >= 2000) return 'bg-purple-650'
+    if (rating >= 1800) return 'bg-cyan-600'
+    if (rating >= 1600) return 'bg-teal-650'
+    if (rating >= 1400) return 'bg-amber-600'
+    return 'bg-slate-600'
+  }
+
+  const loadLeaderboardData = async () => {
+    setLoading(true)
+    const token = localStorage.getItem('token')
+    const userStr = localStorage.getItem('user')
+    const currentUser = userStr ? JSON.parse(userStr) : null
+
+    try {
+      // 1. Fetch Global rankings
+      const globalRes = await fetch("http://localhost:3001/profiles/leaderboard")
+      if (globalRes.ok) {
+        const globalData = await globalRes.json()
+        const mappedGlobal = globalData.data.map((r: any, idx: number) => ({
+          rank: idx + 1,
+          name: r.username,
+          avatarText: r.username.slice(0, 2).toUpperCase(),
+          avatarColor: getAvatarColor(r.rating),
+          score: r.rating,
+          hs: r.gamesPlayed,
+          isSelf: currentUser && r.username === currentUser.username
+        }))
+        setGlobalPlayers(mappedGlobal)
+      }
+
+      // 2. Fetch friends and build friends leaderboard
+      if (token) {
+        // Fetch current user rating first to include them in the friends rankings
+        const meRes = await fetch("http://localhost:3001/profiles/me", {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        })
+        let meEntry: any = null
+        if (meRes.ok) {
+          const meData = await meRes.json()
+          meEntry = {
+            id: meData.userId,
+            username: meData.username,
+            rating: meData.rating || 1000,
+            level: meData.statistics?.level || 1,
+            gamesPlayed: meData.statistics?.gamesPlayed || 0
+          }
+        }
+
+        const friendsRes = await fetch("http://localhost:3001/social/friends", {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        })
+        if (friendsRes.ok) {
+          const friendsData = await friendsRes.json()
+          
+          // Combine me + friends
+          const allFriendCompetitors = [...friendsData]
+          if (meEntry) {
+            allFriendCompetitors.push(meEntry)
+          }
+
+          // Sort by rating desc
+          allFriendCompetitors.sort((a, b) => (b.rating || 1000) - (a.rating || 1000))
+
+          const mappedFriends = allFriendCompetitors.map((f: any, idx: number) => ({
+            rank: idx + 1,
+            name: f.username,
+            avatarText: f.username.slice(0, 2).toUpperCase(),
+            avatarColor: getAvatarColor(f.rating || 1000),
+            score: f.rating || 1000,
+            hs: f.gamesPlayed || 0,
+            isSelf: currentUser && f.username === currentUser.username
+          }))
+          setFriendsPlayers(mappedFriends)
+        }
+      }
+    } catch (err) {
+      console.error("Error loading leaderboard standings:", err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadLeaderboardData()
+  }, [activeTab])
+
   // Autocomplete matching scoring logic
-  // Returns top 6 profiles sorted by match accuracy
   const getSearchSuggestions = () => {
     if (!searchQuery.trim()) return []
 
@@ -108,7 +179,7 @@ export function LeaderboardScreen({ isBright }: { isBright: boolean }) {
     }, 3000)
   }
 
-  // Find current user row (Aubrey)
+  // Find current user row
   const selfPlayer = activePlayers.find(p => p.isSelf)
 
   return (
@@ -242,7 +313,7 @@ export function LeaderboardScreen({ isBright }: { isBright: boolean }) {
                               <span className="text-[10px] text-violet-500 font-semibold">Rank #{player.rank}</span>
                             </div>
                           </div>
-                          <span className="text-xs font-mono font-bold text-indigo-400">
+                          <span className="text-xs font-mono font-bold text-indigo-405">
                             {player.score} ELO
                           </span>
                         </button>
@@ -272,170 +343,178 @@ export function LeaderboardScreen({ isBright }: { isBright: boolean }) {
           <div>Position</div>
           <div>Player</div>
           <div className="text-right">Points</div>
-          <div className="text-right pr-4">HS</div>
+          <div className="text-right pr-4">Matches</div>
         </div>
 
         {/* Rows Client Area */}
         <div className="flex-grow overflow-y-auto no-scrollbar py-1.5 space-y-2 max-h-[460px]">
-          {activePlayers.filter(p => p.rank <= 6).map((player) => {
-            const isHighlight = highlightedPlayer === player.name
-            
-            // Generate visual style based on rank (Gold, Silver, Bronze, Standard)
-            let borderStyle = isBright ? "border-white/50" : "border-white/5"
-            let bgStyle = isBright 
-              ? "bg-white/25 border-white/50 backdrop-blur-md"
-              : "bg-slate-950/20 border-white/5 backdrop-blur-md"
-            let laurels = null
+          {loading && activePlayers.length === 0 ? (
+            <div className="flex items-center justify-center py-10">
+              <Loader2 size={24} className="animate-spin text-slate-500" />
+            </div>
+          ) : activePlayers.length > 0 ? (
+            activePlayers.map((player) => {
+              const isHighlight = highlightedPlayer === player.name
+              
+              let borderStyle = isBright ? "border-white/50" : "border-white/5"
+              let bgStyle = isBright 
+                ? "bg-white/25 border-white/50 backdrop-blur-md"
+                : "bg-slate-950/20 border-white/5 backdrop-blur-md"
+              let laurels = null
 
-            if (player.rank === 1) {
-              borderStyle = isBright ? "border-amber-400/80" : "border-amber-500/25"
-              bgStyle = isBright 
-                ? "bg-gradient-to-r from-amber-50/70 via-white/40 to-amber-50/20" 
-                : "bg-gradient-to-r from-amber-950/15 via-[#0b0f19]/75 to-amber-950/5"
-              laurels = "👑"
-            } else if (player.rank === 2) {
-              borderStyle = isBright ? "border-slate-400/70" : "border-slate-500/15"
-              bgStyle = isBright 
-                ? "bg-gradient-to-r from-slate-100/70 via-white/40 to-slate-50/20" 
-                : "bg-gradient-to-r from-slate-800/15 via-[#0b0f19]/75 to-slate-800/5"
-              laurels = "⭐"
-            } else if (player.rank === 3) {
-              borderStyle = isBright ? "border-orange-400/60" : "border-orange-500/15"
-              bgStyle = isBright 
-                ? "bg-gradient-to-r from-orange-50/70 via-white/40 to-orange-50/20" 
-                : "bg-gradient-to-r from-orange-950/15 via-[#0b0f19]/75 to-orange-950/5"
-              laurels = "🔥"
-            }
+              if (player.rank === 1) {
+                borderStyle = isBright ? "border-amber-400/80" : "border-amber-500/25"
+                bgStyle = isBright 
+                  ? "bg-gradient-to-r from-amber-50/70 via-white/40 to-amber-50/20" 
+                  : "bg-gradient-to-r from-amber-950/15 via-[#0b0f19]/75 to-amber-950/5"
+                laurels = "👑"
+              } else if (player.rank === 2) {
+                borderStyle = isBright ? "border-slate-400/70" : "border-slate-500/15"
+                bgStyle = isBright 
+                  ? "bg-gradient-to-r from-slate-100/70 via-white/40 to-slate-50/20" 
+                  : "bg-gradient-to-r from-slate-800/15 via-[#0b0f19]/75 to-slate-800/5"
+                laurels = "⭐"
+              } else if (player.rank === 3) {
+                borderStyle = isBright ? "border-orange-400/60" : "border-orange-500/15"
+                bgStyle = isBright 
+                  ? "bg-gradient-to-r from-orange-50/70 via-white/40 to-orange-50/20" 
+                  : "bg-gradient-to-r from-orange-950/15 via-[#0b0f19]/75 to-orange-950/5"
+                laurels = "🔥"
+              }
 
-            // Compute premium shadow for standard/podium tiles
-            let customShadow = "0 2px 6px rgba(0,0,0,0.01)"
-            if (isHighlight) {
-              customShadow = "0 12px 24px rgba(99, 102, 241, 0.18)"
-            } else if (player.rank === 1) {
-              customShadow = isBright 
-                ? "0 8px 24px rgba(245, 158, 11, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02)" 
-                : "0 10px 25px rgba(0, 0, 0, 0.35)"
-            } else if (player.rank === 2) {
-              customShadow = isBright 
-                ? "0 8px 24px rgba(100, 116, 139, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02)" 
-                : "0 10px 25px rgba(0, 0, 0, 0.35)"
-            } else if (player.rank === 3) {
-              customShadow = isBright 
-                ? "0 8px 24px rgba(249, 115, 22, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02)" 
-                : "0 10px 25px rgba(0, 0, 0, 0.35)"
-            } else {
-              customShadow = isBright 
-                ? "0 6px 20px rgba(28, 20, 50, 0.03), 0 2px 6px rgba(28, 20, 50, 0.01)" 
-                : "0 8px 25px rgba(0, 0, 0, 0.3)"
-            }
+              let customShadow = "0 2px 6px rgba(0,0,0,0.01)"
+              if (isHighlight) {
+                customShadow = "0 12px 24px rgba(99, 102, 241, 0.18)"
+              } else if (player.rank === 1) {
+                customShadow = isBright 
+                  ? "0 8px 24px rgba(245, 158, 11, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02)" 
+                  : "0 10px 25px rgba(0, 0, 0, 0.35)"
+              } else if (player.rank === 2) {
+                customShadow = isBright 
+                  ? "0 8px 24px rgba(100, 116, 139, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02)" 
+                  : "0 10px 25px rgba(0, 0, 0, 0.35)"
+              } else if (player.rank === 3) {
+                customShadow = isBright 
+                  ? "0 8px 24px rgba(249, 115, 22, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02)" 
+                  : "0 10px 25px rgba(0, 0, 0, 0.35)"
+              } else {
+                customShadow = isBright 
+                  ? "0 6px 20px rgba(28, 20, 50, 0.03), 0 2px 6px rgba(28, 20, 50, 0.01)" 
+                  : "0 8px 25px rgba(0, 0, 0, 0.3)"
+              }
 
-            return (
-              <motion.div
-                key={player.name}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ 
-                  opacity: 1, 
-                  y: 0,
-                  scale: isHighlight ? 1.025 : 1,
-                  boxShadow: customShadow
-                }}
-                whileHover={{
-                  scale: 1.012,
-                  y: -2,
-                  borderColor: player.rank === 1 
-                    ? "rgba(245, 158, 11, 0.5)" 
-                    : player.rank === 2
-                    ? "rgba(100, 116, 139, 0.4)"
-                    : player.rank === 3
-                    ? "rgba(249, 115, 22, 0.4)"
-                    : isBright 
-                    ? "rgba(255, 255, 255, 0.75)" 
-                    : "rgba(255, 255, 255, 0.18)",
-                  boxShadow: player.rank === 1
-                    ? (isBright ? "0 12px 30px rgba(245, 158, 11, 0.15)" : "0 16px 36px rgba(245, 158, 11, 0.06)")
-                    : player.rank === 2
-                    ? (isBright ? "0 12px 30px rgba(100, 116, 139, 0.12)" : "0 16px 36px rgba(100, 116, 139, 0.06)")
-                    : player.rank === 3
-                    ? (isBright ? "0 12px 30px rgba(249, 115, 22, 0.12)" : "0 16px 36px rgba(249, 115, 22, 0.06)")
-                    : isBright 
-                    ? "0 12px 28px rgba(28, 20, 50, 0.06)" 
-                    : "0 14px 30px rgba(0, 0, 0, 0.45)"
-                }}
-                transition={{ type: 'tween', duration: 0.15, ease: 'easeOut' }}
-                className={cn(
-                  "w-full grid grid-cols-4 items-center px-5 py-2.5 rounded-2xl border relative overflow-hidden group",
-                  borderStyle,
-                  bgStyle,
-                  isHighlight && "border-indigo-500 bg-indigo-500/5"
-                )}
-              >
-                {/* Visual scanline on highlighted items */}
-                {isHighlight && (
-                  <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent pointer-events-none animate-pulse" />
-                )}
-
-                {/* Column 1: Rank Position */}
-                <div className="flex items-center gap-3">
-                  <span className={cn(
-                    "text-xs font-black italic tracking-tighter flex items-center justify-center rounded-lg w-7 h-7 shrink-0",
-                    player.rank === 1 && "text-amber-500 bg-amber-500/10 border border-amber-500/20",
-                    player.rank === 2 && "text-slate-400 bg-slate-400/10 border border-slate-400/20",
-                    player.rank === 3 && "text-orange-500 bg-orange-500/10 border border-orange-500/20",
-                    player.rank > 3 && (isBright ? "text-slate-600 bg-slate-100" : "text-slate-400 bg-slate-900/60")
-                  )}>
-                    {player.rank}
-                  </span>
-                  {laurels && (
-                    <span className="text-xs font-semibold filter drop-shadow">
-                      {laurels}
-                    </span>
+              return (
+                <motion.div
+                  key={player.name}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ 
+                    opacity: 1, 
+                    y: 0,
+                    scale: isHighlight ? 1.025 : 1,
+                    boxShadow: customShadow
+                  }}
+                  whileHover={{
+                    scale: 1.012,
+                    y: -2,
+                    borderColor: player.rank === 1 
+                      ? "rgba(245, 158, 11, 0.5)" 
+                      : player.rank === 2
+                      ? "rgba(100, 116, 139, 0.4)"
+                      : player.rank === 3
+                      ? "rgba(249, 115, 22, 0.4)"
+                      : isBright 
+                      ? "rgba(255, 255, 255, 0.75)" 
+                      : "rgba(255, 255, 255, 0.18)",
+                    boxShadow: player.rank === 1
+                      ? (isBright ? "0 12px 30px rgba(245, 158, 11, 0.15)" : "0 16px 36px rgba(245, 158, 11, 0.06)")
+                      : player.rank === 2
+                      ? (isBright ? "0 12px 30px rgba(100, 116, 139, 0.12)" : "0 16px 36px rgba(100, 116, 139, 0.06)")
+                      : player.rank === 3
+                      ? (isBright ? "0 12px 30px rgba(249, 115, 22, 0.12)" : "0 16px 36px rgba(249, 115, 22, 0.06)")
+                      : isBright 
+                      ? "0 12px 28px rgba(28, 20, 50, 0.06)" 
+                      : "0 14px 30px rgba(0, 0, 0, 0.45)"
+                  }}
+                  transition={{ type: 'tween', duration: 0.15, ease: 'easeOut' }}
+                  className={cn(
+                    "w-full grid grid-cols-4 items-center px-5 py-2.5 rounded-2xl border relative overflow-hidden group",
+                    borderStyle,
+                    bgStyle,
+                    isHighlight && "border-indigo-500 bg-indigo-500/5"
                   )}
-                </div>
+                >
+                  {isHighlight && (
+                    <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent pointer-events-none animate-pulse" />
+                  )}
 
-                {/* Column 2: Player Profile info */}
-                <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "w-[34px] h-[34px] rounded-xl flex items-center justify-center font-black text-xs text-white shadow-sm relative overflow-hidden shrink-0",
-                    player.avatarColor
-                  )}>
-                    {player.avatarText}
-                    <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
-                  </div>
-                  <div>
+                  {/* Column 1: Rank Position */}
+                  <div className="flex items-center gap-3">
                     <span className={cn(
-                      "font-bold text-xs block",
-                      isBright ? "text-slate-800" : "text-white"
+                      "text-xs font-black italic tracking-tighter flex items-center justify-center rounded-lg w-7 h-7 shrink-0",
+                      player.rank === 1 && "text-amber-500 bg-amber-500/10 border border-amber-500/20",
+                      player.rank === 2 && "text-slate-400 bg-slate-400/10 border border-slate-400/20",
+                      player.rank === 3 && "text-orange-505 bg-orange-500/10 border border-orange-500/20",
+                      player.rank > 3 && (isBright ? "text-slate-600 bg-slate-100" : "text-slate-400 bg-slate-900/60")
                     )}>
-                      {player.name}
+                      {player.rank}
                     </span>
-                    <span className="text-[9px] text-indigo-400 font-bold uppercase tracking-wider">
-                      {player.score > 5000 ? 'Challenger' : 'Diamond'}
-                    </span>
+                    {laurels && (
+                      <span className="text-xs font-semibold filter drop-shadow">
+                        {laurels}
+                      </span>
+                    )}
                   </div>
-                </div>
 
-                {/* Column 3: Points ELO */}
-                <div className={cn(
-                  "text-right text-sm font-black font-mono tracking-tight",
-                  isBright ? "text-slate-950" : "text-white"
-                )}>
-                  {player.score}
-                </div>
+                  {/* Column 2: Player Profile info */}
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "w-[34px] h-[34px] rounded-xl flex items-center justify-center font-black text-xs text-white shadow-sm relative overflow-hidden shrink-0",
+                      player.avatarColor
+                    )}>
+                      {player.avatarText}
+                      <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+                    </div>
+                    <div>
+                      <span className={cn(
+                        "font-bold text-xs block",
+                        isBright ? "text-slate-805" : "text-white"
+                      )}>
+                        {player.name}
+                        {player.isSelf && " (You)"}
+                      </span>
+                      <span className="text-[9px] text-indigo-400 font-bold uppercase tracking-wider">
+                        {player.score >= 1800 ? 'Diamond' : player.score >= 1600 ? 'Platinum' : player.score >= 1400 ? 'Gold' : 'Silver'}
+                      </span>
+                    </div>
+                  </div>
 
-                {/* Column 4: HS Rate */}
-                <div className={cn(
-                  "text-right font-mono font-bold pr-4 text-xs",
-                  isBright ? "text-slate-600" : "text-slate-300"
-                )}>
-                  {player.hs}
-                </div>
+                  {/* Column 3: Points ELO */}
+                  <div className={cn(
+                    "text-right text-sm font-black font-mono tracking-tight",
+                    isBright ? "text-slate-950" : "text-white"
+                  )}>
+                    {player.score}
+                  </div>
 
-              </motion.div>
-            )
-          })}
+                  {/* Column 4: Matches played */}
+                  <div className={cn(
+                    "text-right font-mono font-bold pr-4 text-xs",
+                    isBright ? "text-slate-605" : "text-slate-300"
+                  )}>
+                    {player.hs}
+                  </div>
+
+                </motion.div>
+              )
+            })
+          ) : (
+            <div className="text-center py-10 text-xs font-semibold uppercase text-slate-500 tracking-wider">
+              No competitors ranked yet.
+            </div>
+          )}
         </div>
 
-        {/* Sticky bottom row for current user Aubrey (Rank 25 / Rank 7) */}
+        {/* Sticky bottom row for current user standing */}
         {selfPlayer && (
           <div className="pt-3.5 mt-auto">
             <div className="px-2 py-0.5 text-[9px] font-black uppercase text-indigo-500 tracking-wider flex items-center gap-1.5 mb-1.5">
@@ -465,11 +544,10 @@ export function LeaderboardScreen({ isBright }: { isBright: boolean }) {
               className={cn(
                 "w-full grid grid-cols-4 items-center px-5 py-3 rounded-2xl border-2 relative overflow-hidden",
                 isBright 
-                  ? "bg-gradient-to-r from-indigo-50/80 to-white/95 border-indigo-500/60 text-slate-800" 
+                  ? "bg-gradient-to-r from-indigo-50/80 to-white/95 border-indigo-500/60 text-slate-805" 
                   : "bg-gradient-to-r from-indigo-950/20 to-slate-950/85 border-indigo-500/40 text-white"
               )}
             >
-              {/* Scanline glow effect on active user */}
               <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent pointer-events-none animate-pulse" />
 
               {/* Position rank */}
@@ -496,7 +574,7 @@ export function LeaderboardScreen({ isBright }: { isBright: boolean }) {
                     {selfPlayer.name}
                   </span>
                   <span className="text-[9px] text-violet-400 font-bold uppercase tracking-wider">
-                    Platinum Arena
+                    {selfPlayer.score >= 1800 ? 'Diamond Tier' : selfPlayer.score >= 1600 ? 'Platinum Tier' : 'Gold Tier'}
                   </span>
                 </div>
               </div>
@@ -506,7 +584,7 @@ export function LeaderboardScreen({ isBright }: { isBright: boolean }) {
                 {selfPlayer.score}
               </div>
 
-              {/* HS value */}
+              {/* Matches played */}
               <div className="text-right font-mono font-bold pr-4 text-xs text-indigo-500">
                 {selfPlayer.hs}
               </div>

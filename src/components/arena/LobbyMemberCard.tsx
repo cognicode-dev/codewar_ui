@@ -18,6 +18,10 @@ function getStatusDetails(status: string) {
     return { dotClass: 'bg-purple-500', text: 'Submitting', textClass: 'text-purple-600 dark:text-purple-400' }
   } else if (norm.includes('wrong') || norm.includes('wa') || norm.includes('error')) {
     return { dotClass: 'bg-rose-550', text: 'Wrong Answer', textClass: 'text-rose-600 dark:text-rose-455' }
+  } else if (norm.includes('typing')) {
+    return { dotClass: 'bg-yellow-500', text: 'Typing...', textClass: 'text-yellow-605 dark:text-yellow-400' }
+  } else if (norm.includes('offline')) {
+    return { dotClass: 'bg-rose-500', text: 'Offline', textClass: 'text-rose-600 dark:text-rose-400' }
   } else {
     return { dotClass: 'bg-slate-400', text: 'Idle', textClass: 'text-slate-450 dark:text-slate-400' }
   }

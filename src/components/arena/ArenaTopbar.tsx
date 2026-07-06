@@ -8,6 +8,7 @@ interface ArenaTopbarProps {
   inRoom: boolean
   isBright?: boolean
   onLeave?: () => void
+  matchStartedAt?: string | null
 }
 
 export function ArenaTopbar({
@@ -16,21 +17,39 @@ export function ArenaTopbar({
   inRoom,
   isBright = false,
   onLeave,
+  matchStartedAt
 }: ArenaTopbarProps) {
-  // Simple countdown timer ticking down from 14:52 for organic match atmosphere
-  const [timeLeft, setTimeLeft] = useState(14 * 60 + 52)
+  // Count-up timer working increasingly
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 25 * 60))
-    }, 1000)
+    const updateTimer = () => {
+      if (matchStartedAt) {
+        const start = new Date(matchStartedAt).getTime()
+        const diff = Math.max(0, Math.floor((Date.now() - start) / 1000))
+        setElapsedSeconds(diff)
+      } else {
+        setElapsedSeconds((prev) => prev + 1)
+      }
+    }
+
+    updateTimer()
+    const interval = setInterval(updateTimer, 1000)
     return () => clearInterval(interval)
-  }, [])
+  }, [matchStartedAt])
 
   const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60)
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
     const s = seconds % 60
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+
+    const mStr = m.toString().padStart(2, '0')
+    const sStr = s.toString().padStart(2, '0')
+
+    if (h > 0) {
+      return `${h}:${mStr}:${sStr}`
+    }
+    return `${mStr}:${sStr}`
   }
 
   return (
@@ -65,7 +84,7 @@ export function ArenaTopbar({
             : "bg-[#1c0e0e] border-rose-500/20 text-rose-500"
         )}>
           <ShieldAlert size={14} className="animate-pulse" />
-          <span>{formatTime(timeLeft)}</span>
+          <span>{formatTime(elapsedSeconds)}</span>
         </div>
       )}
 

@@ -11,7 +11,7 @@ export interface SidebarNavItem {
   label: string
   icon: LucideIcon
   href: string
-  badge?: number | string
+  badge?: number | string | boolean
 }
 
 // Static navigation config items
@@ -33,7 +33,7 @@ export const sidebarStaticConfig: SidebarNavItem[] = [
     label: 'Friends',
     icon: Users,
     href: '/friends',
-    badge: 4,
+    badge: true,
   },
   {
     id: 'statistics',

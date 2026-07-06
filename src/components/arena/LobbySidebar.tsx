@@ -6,58 +6,55 @@ import { cn } from '@/utils'
 import { Users, Activity, MessageSquare, ChevronDown, ChevronRight } from 'lucide-react'
 
 interface LobbySidebarProps {
-  activeCount?: number
-  maxCount?: number
   isBright?: boolean
-  members?: any[]
-  activities?: any[]
+  members?: { name: string; status: string }[]
+  activities?: LiveFeedItem[]
+  chatMessages?: ChatMessage[]
+  onSendMessage?: (text: string) => void
+  typingUser?: { name: string; isTeammate: boolean } | null
 }
 
 // Complete rich esports mock activities
 const defaultActivities: LiveFeedItem[] = [
-  { id: '1', type: 'run', text: 'Kaelen started running tests', time: '5m ago' },
-  { id: '2', type: 'pass', text: 'Kaelen solved in 28ms', time: '4m ago' },
-  { id: '3', type: 'fail', text: 'Nexus WA', time: '3m ago' },
-  { id: '4', type: 'run', text: 'Ghost running...', time: '2m ago' },
-  { id: '5', type: 'badge', text: 'You fastest runtime', time: '1m ago' },
-  { id: '6', type: 'combo', text: 'Combo +3 active', time: '30s ago' },
-  { id: '7', type: 'rank', text: 'Team Rank #1 achieved', time: '10s ago' }
+  { id: '1', type: 'run', text: 'Tests started running', time: 'Just now' },
+  { id: '2', type: 'pass', text: 'Problem solved', time: 'Just now' }
 ]
 
 // Teammate/Opponent color-coded mock chat messages
 const defaultMessages: ChatMessage[] = [
-  { id: '1', sender: 'Kaelen', text: "I'll optimize DFS.", isTeammate: true, time: '2m ago' },
-  { id: '2', sender: 'dev.exe', text: "I'll handle graph.", isTeammate: true, time: '1m ago' },
-  { id: '3', sender: 'Ghost', text: "gg", isTeammate: false, time: '45s ago' },
-  { id: '4', sender: 'Cipher', text: "nice race", isTeammate: false, time: '15s ago' }
-]
-
-const defaultMembers = [
-  { name: 'Kaelen', status: 'Coding' },
-  { name: 'Sora_Dev', status: 'Running tests' },
-  { name: 'Nexus_Core', status: 'Wrong Answer' },
-  { name: 'Ghost', status: 'Idle' }
+  { id: '1', sender: 'System', text: "Lobby connected.", isTeammate: true, time: 'Just now' }
 ]
 
 export function LobbySidebar({
-  activeCount = 3,
-  maxCount = 4,
   isBright = false,
+  members = [],
+  activities = defaultActivities,
+  chatMessages,
+  onSendMessage,
+  typingUser
 }: LobbySidebarProps) {
   const [activeTab, setActiveTab] = useState<'feed' | 'chat'>('feed')
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(defaultMessages)
+  const [localChatMessages, setLocalChatMessages] = useState<ChatMessage[]>(defaultMessages)
   const [isLobbyExpanded, setIsLobbyExpanded] = useState(true)
 
   const handleSendMessage = (text: string) => {
-    const newMsg: ChatMessage = {
-      id: String(Date.now()),
-      sender: 'You',
-      text,
-      isTeammate: true,
-      time: 'Just now'
+    if (onSendMessage) {
+      onSendMessage(text)
+    } else {
+      const newMsg: ChatMessage = {
+        id: String(Date.now()),
+        sender: 'You',
+        text,
+        isTeammate: true,
+        time: 'Just now'
+      }
+      setLocalChatMessages(prev => [...prev, newMsg])
     }
-    setChatMessages(prev => [...prev, newMsg])
   }
+
+  const currentChatMessages = chatMessages || localChatMessages
+  const activeCount = members.length
+  const maxCount = 2
 
   return (
     <div className={cn(
@@ -86,7 +83,7 @@ export function LobbySidebar({
           "p-3.5 pt-0 border-b flex flex-col gap-2 overflow-y-auto no-scrollbar shrink-0 max-h-[260px] transition-all duration-300",
           isBright ? "border-slate-200/80" : "border-slate-900"
         )}>
-          {defaultMembers.map((member) => (
+          {members.map((member) => (
             <LobbyMemberCard 
               key={member.name} 
               name={member.name}
@@ -144,7 +141,7 @@ export function LobbySidebar({
             transform: activeTab === 'feed' ? 'translateY(0)' : 'translateY(8px)'
           }}
         >
-          <LiveFeed activities={defaultActivities} isBright={isBright} />
+          <LiveFeed activities={activities} isBright={isBright} />
         </div>
 
         <div 
@@ -157,9 +154,10 @@ export function LobbySidebar({
           }}
         >
           <ChatFeed 
-            messages={chatMessages} 
+            messages={currentChatMessages} 
             onSendMessage={handleSendMessage}
             isBright={isBright}
+            typingUser={typingUser}
           />
         </div>
       </div>

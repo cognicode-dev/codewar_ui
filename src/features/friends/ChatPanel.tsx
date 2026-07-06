@@ -21,14 +21,10 @@ export function ChatPanel({ isOpen, friendName, onClose, isBright }: ChatPanelPr
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Load default mock chat history when a new friend is selected
+  // Clear chat history when friend changes
   useEffect(() => {
     if (friendName) {
-      setMessages([
-        { sender: 'them', text: `Hey Aubrey! Are you ready to play some ranked games?`, time: '3:40 PM' },
-        { sender: 'me', text: `Hey ${friendName}! Yes, just finishing up. ELO grind time.`, time: '3:42 PM' },
-        { sender: 'them', text: `Awesome. Send me an invite when you are online.`, time: '3:43 PM' }
-      ])
+      setMessages([])
     }
   }, [friendName])
 

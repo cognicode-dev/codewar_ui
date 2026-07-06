@@ -13,11 +13,11 @@ interface ChatFeedProps {
   messages: ChatMessage[]
   onSendMessage: (text: string) => void
   isBright?: boolean
+  typingUser?: { name: string; isTeammate: boolean } | null
 }
 
-export function ChatFeed({ messages, onSendMessage, isBright = false }: ChatFeedProps) {
+export function ChatFeed({ messages, onSendMessage, isBright = false, typingUser = null }: ChatFeedProps) {
   const [inputText, setInputText] = useState('')
-  const [typingUser, setTypingUser] = useState<{ name: string; isTeammate: boolean } | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Scroll to bottom when new messages arrive
@@ -26,37 +26,6 @@ export function ChatFeed({ messages, onSendMessage, isBright = false }: ChatFeed
       containerRef.current.scrollTop = containerRef.current.scrollHeight
     }
   }, [messages, typingUser])
-
-  // Dynamic rotating typing loop (Kaelen, Ghost, Sora_Dev) to make matches feel alive
-  useEffect(() => {
-    const users = [
-      { name: 'Kaelen', isTeammate: true },
-      { name: 'Ghost', isTeammate: false },
-      { name: 'Sora_Dev', isTeammate: true }
-    ]
-
-    let index = 0
-    const interval = setInterval(() => {
-      // 70% chance to show typing indicator, 30% chance of quiet feed
-      if (Math.random() > 0.3) {
-        const user = users[index % users.length]
-        setTypingUser(user)
-        index++
-      } else {
-        setTypingUser(null)
-      }
-    }, 6000)
-
-    // Initial delay trigger
-    const timeout = setTimeout(() => {
-      setTypingUser(users[0])
-    }, 2000)
-
-    return () => {
-      clearInterval(interval)
-      clearTimeout(timeout)
-    }
-  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

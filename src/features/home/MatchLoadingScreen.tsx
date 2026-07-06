@@ -17,9 +17,17 @@ interface MatchLoadingScreenProps {
   isBright: boolean
   matchType: string
   onLoadingComplete: () => void
+  myTeam?: Player[]
+  enemyTeam?: Player[]
 }
 
-export function MatchLoadingScreen({ isBright, matchType, onLoadingComplete }: MatchLoadingScreenProps) {
+export function MatchLoadingScreen({ 
+  isBright, 
+  matchType, 
+  onLoadingComplete,
+  myTeam: customMyTeam,
+  enemyTeam: customEnemyTeam
+}: MatchLoadingScreenProps) {
   const [progress, setProgress] = useState(0)
   const [statusText, setStatusText] = useState('Establishing connection to sandbox...')
   const [playerProgress, setPlayerProgress] = useState({
@@ -29,16 +37,19 @@ export function MatchLoadingScreen({ isBright, matchType, onLoadingComplete }: M
     enemy2: 0,
   })
 
-  // Simulated player details
-  const myTeam: Player[] = [
+  // Simulated player details (default fallbacks)
+  const defaultMyTeam: Player[] = [
     { name: 'dev.exe', elo: 1850, language: 'TypeScript', avatarText: 'DEV', avatarColor: 'bg-indigo-600', accuracy: '98.4%', isSelf: true },
     { name: 'Kaelen', elo: 1920, language: 'Python', avatarText: 'KA', avatarColor: 'bg-amber-600', accuracy: '95.1%' }
   ]
 
-  const enemyTeam: Player[] = [
+  const defaultEnemyTeam: Player[] = [
     { name: 'Sora_Dev', elo: 1820, language: 'C++', avatarText: 'SO', avatarColor: 'bg-rose-600', accuracy: '96.2%' },
     { name: 'Nexus_Core', elo: 1450, language: 'Rust', avatarText: 'NX', avatarColor: 'bg-emerald-600', accuracy: '90.8%' }
   ]
+
+  const myTeam = customMyTeam || defaultMyTeam
+  const enemyTeam = customEnemyTeam || defaultEnemyTeam
 
   // Global loading states and texts
   useEffect(() => {

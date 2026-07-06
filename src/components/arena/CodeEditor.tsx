@@ -7,6 +7,7 @@ interface CodeEditorProps {
   theme: string
   onChange?: (value: string) => void
   isBright?: boolean
+  onTyping?: (isTyping: boolean) => void
 }
 
 export function CodeEditor({
@@ -15,6 +16,7 @@ export function CodeEditor({
   theme,
   onChange,
   isBright = false,
+  onTyping,
 }: CodeEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const highlightRef = useRef<HTMLDivElement>(null)
@@ -23,6 +25,8 @@ export function CodeEditor({
   // Local state for immediate typing renders (averts full parent page re-renders)
   const [localValue, setLocalValue] = useState(value)
   const debounceTimer = useRef<any>(null)
+  const typingTimeoutRef = useRef<any>(null)
+  const [isCurrentlyTyping, setIsCurrentlyTyping] = useState(false)
 
   // Synchronize when the initial or reset value changes from the parent component
   useEffect(() => {
@@ -36,6 +40,9 @@ export function CodeEditor({
     return () => {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current)
+      }
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current)
       }
     }
   }, [])
@@ -58,6 +65,20 @@ export function CodeEditor({
   // Set local state immediately for 60fps render speed, then debounce parent update
   const handleTextChange = (newVal: string) => {
     setLocalValue(newVal)
+
+    if (!isCurrentlyTyping) {
+      setIsCurrentlyTyping(true)
+      onTyping?.(true)
+    }
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current)
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsCurrentlyTyping(false)
+      onTyping?.(false)
+    }, 1500)
 
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current)

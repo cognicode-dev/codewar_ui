@@ -137,8 +137,19 @@ export function FloatingSidebar({
 
                 {/* Notification count badge */}
                 {item.badge !== undefined && (
-                  <span className="nav-item-badge">
-                    {item.badge}
+                  <span 
+                    className="nav-item-badge"
+                    style={item.badge === true ? {
+                      width: '8px',
+                      height: '8px',
+                      minWidth: '8px',
+                      padding: 0,
+                      fontSize: '0px',
+                      top: '0px',
+                      right: '0px'
+                    } : {}}
+                  >
+                    {item.badge === true ? '' : item.badge}
                   </span>
                 )}
               </motion.button>

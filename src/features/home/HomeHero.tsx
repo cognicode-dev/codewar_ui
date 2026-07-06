@@ -1,6 +1,11 @@
 import { motion } from 'motion/react'
 
-export function HomeHero() {
+interface HomeHeroProps {
+  username?: string
+  isBright?: boolean
+}
+
+export function HomeHero({ username, isBright = true }: HomeHeroProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -22,17 +27,17 @@ export function HomeHero() {
         className="font-extrabold uppercase tracking-tight"
         style={{
           fontSize: '64px',
-          color: '#1A1533',
+          color: isBright ? '#1A1533' : '#F3F4F6',
           lineHeight: '0.95'
         }}
       >
-        dev.exe
+        {username || 'dev.exe'}
       </h1>
       <p 
         className="font-medium"
         style={{
           fontSize: '18px',
-          color: '#4B5563', // Slate-600 dark gray for premium subtitle contrast
+          color: isBright ? '#4B5563' : '#9CA3AF', // Premium subtitle contrast
           lineHeight: '1.5',
           maxWidth: '320px',
           paddingTop: '2px'
